@@ -1,0 +1,43 @@
+{
+  "name": "@trailing/core",
+  "version": "0.1.0",
+  "description": "Node.js and TypeScript SDK for the Trailing audit API",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "src",
+    "README.md",
+    "package.json",
+    "tsconfig.json"
+  ],
+  "scripts": {
+    "build": "node ./scripts/build.mjs",
+    "test": "npm run build && node --test --experimental-strip-types ./tests/client.test.ts",
+    "typecheck": "tsc --noEmit -p ./tsconfig.json"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "devDependencies": {
+    "typescript": "^5.8.3"
+  },
+  "keywords": [
+    "audit",
+    "compliance",
+    "agents",
+    "sdk",
+    "typescript"
+  ],
+  "license": "Apache-2.0"
+}

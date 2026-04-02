@@ -1,0 +1,49 @@
+# Build artifacts
+/target/
+sdk/node/dist/
+
+# Rust
+*.db-journal
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+*.egg
+dist/
+build/
+
+# Node
+node_modules/
+
+# Runtime data
+trailing.db
+trailing.db.root
+*.bundle
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Agent / CI temp files
+.codex-prompt*.md
+.codex
+.codex-inv-worktrees/
+.codex-inv-launch*.sh
+.playwright-mcp/
+.claude/
+
+# Deployment state
+.vercel
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment
+.env
+.env.local

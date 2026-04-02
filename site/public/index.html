@@ -1,0 +1,1067 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Agent Audit Trail & Compliance Platform | Trailing</title>
+  <meta name="description" content="Trailing is the AI agent audit trail and compliance platform. Immutable logging for Claude Code, Codex, Cursor, CrewAI, LangChain, and OpenAI agents. pip install trailing." />
+  <link rel="canonical" href="https://trailing.ai/" />
+  <meta name="robots" content="index,follow" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="AI Agent Audit Trail & Compliance Platform | Trailing" />
+  <meta property="og:description" content="Tamper-evident AI agent logging, LLM audit logs, and agent observability for regulated teams. EU AI Act, HIPAA, NIST AI RMF compliance." />
+  <meta property="og:url" content="https://trailing.ai/" />
+  <meta property="og:image" content="https://trailing.ai/og-image.png" />
+  <meta property="og:site_name" content="Trailing" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="AI Agent Audit Trail & Compliance Platform | Trailing" />
+  <meta name="twitter:description" content="AI compliance, AI agent logging, and LLM audit logs in one open-source platform." />
+  <meta name="twitter:image" content="https://trailing.ai/og-image.png" />
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Trailing","url":"https://trailing.ai/","applicationCategory":"SecurityApplication","operatingSystem":"Web","description":"AI agent audit trail and compliance platform for AI agent logging, agent observability, and LLM audit logs.","featureList":["AI agent audit trail","AI compliance","Agent observability","LLM audit log","AI agent logging","Immutable audit ledger","EU AI Act compliance","HIPAA compliance"],"offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}</script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap');
+    :root {
+      --zinc-50: #fafafa;
+      --zinc-100: #f4f4f5;
+      --zinc-200: #e4e4e7;
+      --zinc-300: #d4d4d8;
+      --zinc-400: #a1a1aa;
+      --zinc-500: #71717a;
+      --zinc-600: #52525b;
+      --zinc-700: #3f3f46;
+      --zinc-800: #27272a;
+      --zinc-900: #18181b;
+      --white: #ffffff;
+      --shadow-soft: 0 24px 80px -36px rgba(24, 24, 27, 0.24);
+      --shadow-frame: 0 40px 120px -54px rgba(24, 24, 27, 0.38);
+      --sans: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+      --mono: 'IBM Plex Mono', 'SF Mono', 'Cascadia Mono', Consolas, monospace;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--sans);
+      color: var(--zinc-900);
+      background: var(--white);
+      -webkit-font-smoothing: antialiased;
+      line-height: 1.5;
+      background-image:
+        linear-gradient(rgba(228, 228, 231, 0.55) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(228, 228, 231, 0.55) 1px, transparent 1px);
+      background-size: 52px 52px;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      background:
+        radial-gradient(circle at 50% 12%, rgba(255, 255, 255, 0.99) 0, rgba(255, 255, 255, 0.96) 28%, rgba(255, 255, 255, 0.72) 50%, rgba(255, 255, 255, 0) 74%);
+    }
+
+    a, button { font: inherit; }
+
+    .page-shell {
+      position: relative;
+      z-index: 1;
+      min-height: 100vh;
+    }
+
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: rgba(255, 255, 255, 0.84);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border-bottom: 1px solid rgba(228, 228, 231, 0.8);
+    }
+
+    .nav {
+      max-width: 76rem;
+      margin: 0 auto;
+      padding: 14px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .nav-brand,
+    .footer-brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+      color: var(--zinc-900);
+    }
+
+    .nav-brand svg,
+    .footer-brand svg {
+      width: 24px;
+      height: 24px;
+      transform: scaleX(-1);
+    }
+
+    .nav-brand span,
+    .footer-brand span {
+      font-size: 18px;
+      font-weight: 800;
+      letter-spacing: -0.04em;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 22px;
+      margin-left: auto;
+    }
+
+    .nav-links a {
+      text-decoration: none;
+      color: var(--zinc-600);
+      font-size: 14px;
+      transition: color 0.18s ease;
+    }
+
+    .nav-links a.btn-dark {
+      color: var(--white);
+    }
+
+    .nav-links a:hover,
+    .footer-col a:hover {
+      color: var(--zinc-900);
+    }
+
+    .nav-links a.btn-dark:hover {
+      color: var(--white);
+    }
+
+    .burger {
+      display: none;
+      border: none;
+      background: transparent;
+      color: var(--zinc-600);
+      padding: 8px;
+      margin-right: -8px;
+      cursor: pointer;
+    }
+
+    .btn-dark,
+    .btn-border,
+    .btn-light,
+    .btn-ghost {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-height: 46px;
+      padding: 0 20px;
+      border-radius: 12px;
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease, border-color 0.18s ease, color 0.18s ease;
+    }
+
+    .btn-dark {
+      background: var(--zinc-900);
+      color: var(--white);
+      box-shadow: 0 16px 32px -20px rgba(24, 24, 27, 0.8);
+    }
+
+    .btn-dark:hover,
+    .btn-light:hover {
+      transform: translateY(-1px);
+    }
+
+    .btn-dark:hover {
+      background: #111111;
+      box-shadow: 0 24px 36px -24px rgba(24, 24, 27, 0.82);
+    }
+
+    .btn-border {
+      border: 1px solid var(--zinc-200);
+      background: rgba(255, 255, 255, 0.84);
+      color: var(--zinc-700);
+    }
+
+    .btn-border:hover {
+      border-color: var(--zinc-300);
+      background: var(--zinc-50);
+    }
+
+    .btn-border svg { width: 16px; height: 16px; fill: currentColor; }
+
+    .btn-light {
+      background: var(--white);
+      color: var(--zinc-900);
+      box-shadow: 0 22px 36px -24px rgba(255, 255, 255, 0.22);
+    }
+
+    .btn-ghost {
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      color: var(--white);
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    .wrap {
+      max-width: 76rem;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    .hero {
+      padding: 72px 0 56px;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr);
+      gap: 44px;
+      align-items: center;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(212, 212, 216, 0.9);
+      background: rgba(255, 255, 255, 0.78);
+      box-shadow: 0 16px 40px -32px rgba(24, 24, 27, 0.5);
+      color: var(--zinc-600);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .eyebrow-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: var(--zinc-900);
+    }
+
+    .hero-copy h1 {
+      margin-top: 22px;
+      max-width: 11ch;
+      font-size: clamp(3.25rem, 7vw, 5.35rem);
+      line-height: 0.94;
+      letter-spacing: -0.065em;
+      font-weight: 700;
+      text-wrap: balance;
+    }
+
+    .hero-copy .sub {
+      margin-top: 22px;
+      max-width: 34rem;
+      font-size: 18px;
+      line-height: 1.72;
+      color: var(--zinc-600);
+      text-wrap: balance;
+    }
+
+    .hero-btns {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-top: 30px;
+      flex-wrap: wrap;
+    }
+
+    .hero-meta {
+      margin-top: 18px;
+      color: var(--zinc-500);
+      font-size: 13px;
+      letter-spacing: 0.01em;
+    }
+
+    .hero-frame-wrap {
+      position: relative;
+    }
+
+    .hero-frame-wrap::before,
+    .hero-frame-wrap::after {
+      content: "";
+      position: absolute;
+      inset: auto;
+      border-radius: 999px;
+      filter: blur(60px);
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .hero-frame-wrap::before {
+      width: 210px;
+      height: 210px;
+      top: -34px;
+      right: 28px;
+      background: rgba(161, 161, 170, 0.22);
+    }
+
+    .hero-frame-wrap::after {
+      width: 180px;
+      height: 180px;
+      left: 14px;
+      bottom: -20px;
+      background: rgba(39, 39, 42, 0.1);
+    }
+
+    .browser-shell {
+      position: relative;
+      z-index: 1;
+      border-radius: 26px;
+      overflow: hidden;
+      border: 1px solid rgba(228, 228, 231, 0.95);
+      background: rgba(255, 255, 255, 0.9);
+      box-shadow: var(--shadow-frame);
+    }
+
+    .browser-topbar {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 14px 18px;
+      background: linear-gradient(180deg, rgba(250, 250, 250, 0.96) 0%, rgba(244, 244, 245, 0.92) 100%);
+      border-bottom: 1px solid rgba(228, 228, 231, 0.92);
+    }
+
+    .window-dots {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      flex-shrink: 0;
+    }
+
+    .window-dots span {
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      display: block;
+    }
+
+    .window-dots .dot-r { background: #ff5f57; }
+    .window-dots .dot-y { background: #febc2e; }
+    .window-dots .dot-g { background: #28c840; }
+
+    .browser-address {
+      min-width: 0;
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(228, 228, 231, 0.95);
+      background: rgba(255, 255, 255, 0.96);
+      color: var(--zinc-500);
+      font-family: var(--mono);
+      font-size: 12px;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+
+    .browser-address strong {
+      color: var(--zinc-700);
+      font-weight: 600;
+    }
+
+    .browser-body {
+      background: #121212;
+      padding: 0;
+      aspect-ratio: 1.34 / 1;
+      overflow: hidden;
+    }
+
+    .dash-mock {
+      font-family: 'Manrope', -apple-system, sans-serif;
+      color: #fff;
+      font-size: 11px;
+      padding: 0;
+      height: 100%;
+      display: flex;
+    }
+    .dm-side {
+      width: 40px;
+      background: #0a0a0a;
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 8px 0;
+      gap: 2px;
+      border-right: 1px solid rgba(255,255,255,.06);
+    }
+    .dm-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #616161;
+      font-size: 13px;
+    }
+    .dm-icon.active {
+      background: #31363c;
+      color: #fff;
+    }
+    .dm-main {
+      flex: 1;
+      padding: 14px 18px;
+      overflow: hidden;
+    }
+    .dm-topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    .dm-title {
+      font-size: 12px;
+      font-weight: 500;
+    }
+    .dm-pills {
+      display: flex;
+      gap: 4px;
+    }
+    .dm-pill {
+      padding: 3px 10px;
+      border-radius: 4px;
+      font-size: 9px;
+      font-weight: 500;
+      border: 1px solid #333;
+      background: #1e1e1e;
+      color: #ccc;
+    }
+    .dm-pill.on {
+      background: #404040;
+      color: #fff;
+    }
+    .dm-cards {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+    .dm-card {
+      background: #1e1e1e;
+      border: 1px solid #333;
+      border-radius: 6px;
+      padding: 12px;
+    }
+    .dm-card-label {
+      font-size: 9px;
+      color: #ccc;
+      margin-bottom: 6px;
+    }
+    .dm-card-val {
+      font-size: 22px;
+      font-weight: 700;
+      line-height: 1;
+      font-variant-numeric: tabular-nums;
+    }
+    .dm-card-sub {
+      font-size: 8px;
+      color: #616161;
+      margin-top: 4px;
+    }
+    .dm-green { color: #4ade80; }
+    .dm-amber { color: #fbbf24; }
+    .dm-cards-3 {
+      grid-template-columns: 1fr 1fr 1fr;
+    }
+    .dm-mini-label {
+      font-size: 9px;
+      color: #ccc;
+      margin-bottom: 4px;
+      display: flex;
+      justify-content: space-between;
+    }
+    .dm-mini-link {
+      color: #b1c8ff;
+      font-size: 8px;
+    }
+    .dm-agent-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 3px 0;
+      border-bottom: 1px solid rgba(255,255,255,.04);
+      font-size: 9px;
+    }
+    .dm-agent-name { color: #fff; }
+    .dm-agent-count { color: #616161; }
+
+    .section {
+      padding: 44px 0 0;
+    }
+
+    .section + .section {
+      padding-top: 84px;
+    }
+
+    .section-head {
+      max-width: 44rem;
+      margin-bottom: 28px;
+    }
+
+    .section-kicker {
+      display: inline-block;
+      margin-bottom: 12px;
+      color: var(--zinc-500);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.11em;
+      text-transform: uppercase;
+    }
+
+    .section-head h2 {
+      font-size: clamp(2rem, 4.8vw, 3rem);
+      line-height: 1.02;
+      letter-spacing: -0.05em;
+      font-weight: 650;
+      text-wrap: balance;
+    }
+
+    .section-head p {
+      margin-top: 14px;
+      color: var(--zinc-600);
+      font-size: 17px;
+      line-height: 1.72;
+      text-wrap: balance;
+    }
+
+    .trust {
+      padding-top: 72px;
+    }
+
+    .trust-card {
+      padding: 26px;
+      border-radius: 26px;
+      border: 1px solid rgba(228, 228, 231, 0.92);
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.96) 0%, rgba(250, 250, 250, 0.96) 100%);
+      box-shadow: var(--shadow-soft);
+    }
+
+    .trust-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    .trust-row h2 {
+      font-size: clamp(1.65rem, 3vw, 2.2rem);
+      line-height: 1.05;
+      letter-spacing: -0.045em;
+      font-weight: 650;
+      max-width: 20rem;
+    }
+
+    .badge-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 38px;
+      padding: 0 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(212, 212, 216, 0.9);
+      background: rgba(255, 255, 255, 0.9);
+      color: var(--zinc-700);
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+    }
+    .badge img {
+      height: 20px;
+      width: auto;
+      border-radius: 2px;
+    }
+
+    .steps-grid,
+    .security-grid {
+      display: grid;
+      gap: 16px;
+    }
+
+    .steps-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .security-grid {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .step-card,
+    .security-card {
+      border-radius: 22px;
+      border: 1px solid rgba(228, 228, 231, 0.92);
+      background: rgba(255, 255, 255, 0.88);
+      padding: 24px;
+      box-shadow: var(--shadow-soft);
+    }
+
+    .step-card h3,
+    .security-card h3 {
+      font-size: 18px;
+      line-height: 1.08;
+      letter-spacing: -0.03em;
+      font-weight: 650;
+    }
+
+    .step-card p,
+    .security-card p {
+      margin-top: 10px;
+      color: var(--zinc-600);
+      font-size: 15px;
+      line-height: 1.68;
+    }
+
+    .security {
+      padding-bottom: 92px;
+    }
+
+    .cta-panel {
+      margin-top: 92px;
+      border-radius: 32px;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at top left, rgba(82, 82, 91, 0.22), transparent 34%),
+        linear-gradient(180deg, #202024 0%, #161618 100%);
+      border: 1px solid rgba(63, 63, 70, 0.85);
+      box-shadow: 0 40px 110px -60px rgba(24, 24, 27, 0.7);
+    }
+
+    .cta-inner {
+      padding: 72px 32px;
+      text-align: center;
+    }
+
+    .cta-inner h2 {
+      color: var(--white);
+      font-size: clamp(2.2rem, 5vw, 3.35rem);
+      line-height: 0.98;
+      letter-spacing: -0.055em;
+      font-weight: 650;
+      text-wrap: balance;
+    }
+
+    .cta-inner p {
+      max-width: 38rem;
+      margin: 16px auto 0;
+      color: rgba(244, 244, 245, 0.74);
+      font-size: 17px;
+      line-height: 1.74;
+      text-wrap: balance;
+    }
+
+    .cta-actions {
+      display: flex;
+      justify-content: center;
+      gap: 14px;
+      flex-wrap: wrap;
+      margin-top: 28px;
+    }
+
+    footer {
+      margin-top: 28px;
+      padding: 48px 0 56px;
+      border-top: 1px solid rgba(228, 228, 231, 0.92);
+      background: rgba(250, 250, 250, 0.74);
+    }
+
+    .footer-inner {
+      max-width: 76rem;
+      margin: 0 auto;
+      padding: 0 24px;
+      display: grid;
+      grid-template-columns: minmax(0, 1.2fr) repeat(2, minmax(0, 0.7fr));
+      gap: 28px;
+      align-items: start;
+    }
+
+    .footer-tagline {
+      margin-top: 14px;
+      max-width: 22rem;
+      color: var(--zinc-600);
+      font-size: 14px;
+      line-height: 1.7;
+    }
+
+    .footer-col h4 {
+      margin-bottom: 14px;
+      color: var(--zinc-900);
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+    }
+
+    .footer-col a {
+      display: block;
+      margin-bottom: 12px;
+      text-decoration: none;
+      color: var(--zinc-600);
+      font-size: 14px;
+      transition: color 0.18s ease;
+    }
+
+    .reveal {
+      opacity: 0;
+      transform: translateY(16px);
+      transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1), transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .reveal.no-anim {
+      opacity: 1;
+      transform: none;
+      transition: none;
+    }
+
+    .delay-1 { transition-delay: 0.08s; }
+    .delay-2 { transition-delay: 0.16s; }
+    .delay-3 { transition-delay: 0.24s; }
+
+    @media (max-width: 1120px) {
+      .hero-grid,
+      .footer-inner,
+      .security-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-copy {
+        text-align: center;
+      }
+
+      .hero-copy h1,
+      .hero-copy .sub {
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+      .hero-btns,
+      .hero-meta {
+        justify-content: center;
+      }
+
+      .badge-row {
+        justify-content: flex-end;
+      }
+    }
+
+    @media (max-width: 900px) {
+      .steps-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 760px) {
+      .nav {
+        position: relative;
+      }
+
+      .nav-links {
+        display: none;
+        position: absolute;
+        top: calc(100% + 12px);
+        left: 24px;
+        right: 24px;
+        padding: 18px;
+        border-radius: 18px;
+        border: 1px solid rgba(228, 228, 231, 0.92);
+        background: rgba(255, 255, 255, 0.98);
+        box-shadow: var(--shadow-soft);
+        flex-direction: column;
+        align-items: stretch;
+        gap: 14px;
+      }
+
+      .nav-links.open { display: flex; }
+
+      .nav-links .cta {
+        justify-content: center;
+      }
+
+      .burger { display: inline-flex; }
+
+      .hero {
+        padding-top: 48px;
+      }
+
+      .hero-copy h1 {
+        font-size: clamp(2.8rem, 14vw, 4rem);
+      }
+
+      .hero-copy .sub,
+      .section-head p,
+      .cta-inner p {
+        font-size: 16px;
+      }
+
+      .browser-topbar {
+        gap: 10px;
+        padding: 12px 14px;
+      }
+
+      .browser-address {
+        font-size: 11px;
+        padding: 8px 12px;
+      }
+
+      .cta-inner {
+        padding: 56px 22px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page-shell">
+    <header>
+      <nav class="nav">
+        <a href="/" class="nav-brand">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="4" y1="9" x2="20" y2="9"/><line x1="4" y1="15" x2="20" y2="15"/><line x1="10" y1="3" x2="8" y2="21"/><line x1="16" y1="3" x2="14" y2="21"/></svg>
+          <span>Trailing</span>
+        </a>
+        <div class="nav-links" id="nav-links">
+          <a href="/dashboard">Dashboard</a>
+          <a href="https://github.com/trailingai/trailing#readme">Docs</a>
+          <a href="https://github.com/trailingai/trailing">GitHub</a>
+          <a class="btn-dark cta" href="https://calendly.com/trailing">Book a Demo</a>
+        </div>
+        <button type="button" class="burger" id="nav-toggle" aria-label="Open menu" aria-expanded="false" aria-controls="nav-links">
+          <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"/></svg>
+        </button>
+      </nav>
+    </header>
+
+    <main>
+      <section class="hero">
+        <div class="wrap hero-grid">
+          <div class="hero-copy">
+            <h1 class="reveal no-anim">AI Agent Audit Trail for Compliance Teams</h1>
+            <p class="sub reveal delay-2">Immutable AI agent logging, LLM audit logs, and agent observability with tamper-proof evidence for auditors, regulators, and model risk reviews.</p>
+            <div class="install-block reveal delay-3" style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:12px 18px;font-family:var(--mono);font-size:14px;color:var(--text-2);display:inline-flex;align-items:center;gap:12px;margin-top:24px;margin-bottom:10px;cursor:pointer" onclick="navigator.clipboard.writeText('pip install trailing');this.querySelector('.copy-ok').style.opacity=1;setTimeout(()=>this.querySelector('.copy-ok').style.opacity=0,1500)">
+              <span style="color:var(--text-3)">$</span> pip install trailing
+              <span class="copy-ok" style="font-size:11px;color:var(--green);opacity:0;transition:opacity .2s">copied!</span>
+            </div>
+            <div class="hero-btns reveal delay-3">
+              <a href="https://calendly.com/trailing" class="btn-dark">Book a Demo</a>
+              <a href="https://github.com/trailingai/trailing" class="btn-border">
+                <svg viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+                Star on GitHub
+              </a>
+              <a href="https://pypi.org/project/trailing/" class="btn-border" style="gap:6px">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M9.585 11.692h4.328s2.432.039 2.432-2.35V5.391S16.714 3 11.936 3C7.362 3 7.647 4.983 7.647 4.983l.006 2.055h4.363v.617H7.14S4.5 7.28 4.5 11.87c0 4.59 2.304 4.429 2.304 4.429h1.374v-2.13s-.074-2.304 2.304-2.304h.003l-.003-.003.103.003v-.173zM9.474 5.291a.763.763 0 11.002 1.526.763.763 0 01-.002-1.526z"/><path d="M14.415 12.308h-4.328s-2.432-.039-2.432 2.35v3.951S7.286 21 12.064 21c4.574 0 4.289-1.983 4.289-1.983l-.006-2.055h-4.363v-.617h4.876S19.5 16.72 19.5 12.13c0-4.59-2.304-4.429-2.304-4.429h-1.374v2.13s.074 2.304-2.304 2.304h-.003l.003.003-.103-.003v.173zM14.526 18.709a.763.763 0 11-.002-1.526.763.763 0 01.002 1.526z"/></svg>
+                PyPI
+              </a>
+            </div>
+          </div>
+
+          <div class="hero-frame-wrap reveal delay-2">
+            <div class="browser-shell">
+              <div class="browser-topbar">
+                <div class="window-dots" aria-hidden="true">
+                  <span class="dot-r"></span>
+                  <span class="dot-y"></span>
+                  <span class="dot-g"></span>
+                </div>
+                <div class="browser-address">
+                  <strong>trailing.ai</strong>
+                  <span>/dashboard</span>
+                </div>
+              </div>
+              <div class="browser-body">
+                <div class="dash-mock">
+                  <div class="dm-side">
+                    <div class="dm-icon" style="margin-bottom:8px;background:rgba(255,255,255,.05);font-size:11px;color:#b1c8ff">#</div>
+                    <div class="dm-icon active">⌂</div>
+                    <div class="dm-icon">≡</div>
+                    <div class="dm-icon">◇</div>
+                    <div class="dm-icon">◎</div>
+                    <div class="dm-icon">⟡</div>
+                  </div>
+                  <div class="dm-main">
+                    <div class="dm-topbar">
+                      <span class="dm-title">Compliance Audit Dashboard</span>
+                      <div class="dm-pills">
+                        <span class="dm-pill">Today</span>
+                        <span class="dm-pill">7D</span>
+                        <span class="dm-pill on">30D</span>
+                      </div>
+                    </div>
+                    <div class="dm-cards">
+                      <div class="dm-card"><div class="dm-card-label">Compliance Score</div><div class="dm-card-val dm-green">87%</div><div class="dm-card-sub">EU AI Act · 1,247 actions</div></div>
+                      <div class="dm-card"><div class="dm-card-label">Chain Integrity</div><div class="dm-card-val dm-green">Valid</div><div class="dm-card-sub">1,247 entries verified</div></div>
+                      <div class="dm-card"><div class="dm-card-label">Total Actions</div><div class="dm-card-val">1,247</div><div class="dm-card-sub">Last: 2026-03-31 14:23</div></div>
+                      <div class="dm-card"><div class="dm-card-label">Oversight Events</div><div class="dm-card-val">38</div><div class="dm-card-sub">38 interventions</div></div>
+                    </div>
+                    <div class="dm-cards dm-cards-3">
+                      <div class="dm-card"><div class="dm-mini-label"><span>Top Active Agents</span><span class="dm-mini-link">View all</span></div><div class="dm-agent-row"><span class="dm-agent-name">crewai-research</span><span class="dm-agent-count">412</span></div><div class="dm-agent-row"><span class="dm-agent-name">langchain-rag</span><span class="dm-agent-count">298</span></div><div class="dm-agent-row"><span class="dm-agent-name">claude-code-deploy</span><span class="dm-agent-count">187</span></div></div>
+                      <div class="dm-card"><div class="dm-mini-label"><span>Pending Oversight</span><span class="dm-mini-link">View all</span></div><div class="dm-agent-row"><span class="dm-agent-name">3 events to review</span></div></div>
+                      <div class="dm-card"><div class="dm-mini-label"><span>Recent Sessions</span><span class="dm-mini-link">View all</span></div><div class="dm-agent-row"><span class="dm-agent-name">sess_a1b2c3d4</span></div><div class="dm-agent-row"><span class="dm-agent-name">sess_e5f6g7h8</span></div><div class="dm-agent-row"><span class="dm-agent-name">sess_i9j0k1l2</span></div></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="trust">
+        <div class="wrap">
+          <div class="trust-card reveal">
+            <div class="trust-row">
+              <h2>Trusted by engineering and compliance teams</h2>
+              <div class="badge-row" aria-label="Compliance frameworks">
+                <span class="badge"><img src="data:image/png;base64,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" alt="EU AI Act">EU AI Act</span>
+                <span class="badge"><img src="data:image/png;base64,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" alt="NIST AI RMF">NIST AI RMF</span>
+                <span class="badge"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABkAAAAYCAAAAAAq3gkaAAAAIGNIUk0AAHomAACAhAAA+gAAAIDoAAB1MAAA6mAAADqYAAAXcJy6UTwAAADIZVhJZklJKgAIAAAAAwASAQMAAQAAAAEAAAAxAQIABwAAADIAAABphwQAAQAAADoAAAAAAAAAUGljYXNhAAAGAACQBwAEAAAAMDIyMAGgAwABAAAAAQAAAAKgBAABAAAAKQEAAAOgBAABAAAAIQEAAAWgBAABAAAAqgAAACCkAgAhAAAAiAAAAAAAAABiM2M4MGY0ZDVmMzRhYjEwMDAwMDAwMDAwMDAwMDAwMAAAAgABAAIABAAAAFI5OAACAAcABAAAADAxMDAAAAAANUe2fgAAAAJiS0dEAP+Hj8y/AAAAB3RJTUUH6gMfFyIyQt0NCAAAACV0RVh0ZGF0ZTpjcmVhdGUAMjAyNi0wMy0zMVQyMzozNDoyMCswMDowMK5BGasAAAAldEVYdGRhdGU6bW9kaWZ5ADIwMjYtMDMtMzFUMjM6MzQ6MjArMDA6MDDfHKEXAAAAKHRFWHRkYXRlOnRpbWVzdGFtcAAyMDI2LTAzLTMxVDIzOjM0OjUwKzAwOjAwgsyJ0QAAABF0RVh0ZXhpZjpDb2xvclNwYWNlADEPmwJJAAAAEnRFWHRleGlmOkV4aWZPZmZzZXQANTj74hmlAAAAFXRFWHRleGlmOkV4aWZWZXJzaW9uADAyMjCTWwW7AAAAM3RFWHRleGlmOkltYWdlVW5pcXVlSUQAYjNjODBmNGQ1ZjM0YWIxMDAwMDAwMDAwMDAwMDAwMDC33SIjAAAAH3RFWHRleGlmOkludGVyb3BlcmFiaWxpdHlPZmZzZXQAMTcw++ZRGwAAABh0RVh0ZXhpZjpQaXhlbFhEaW1lbnNpb24AMjk3C9LQ3gAAABh0RVh0ZXhpZjpQaXhlbFlEaW1lbnNpb24AMjg5aH4t7gAAABR0RVh0ZXhpZjpTb2Z0d2FyZQBQaWNhc2ENxucjAAAAKHRFWHRleGlmOnRodW1ibmFpbDpJbnRlcm9wZXJhYmlsaXR5SW5kZXgAUjk4Zr+mgAAAACt0RVh0ZXhpZjp0aHVtYm5haWw6SW50ZXJvcGVyYWJpbGl0eVZlcnNpb24AMDEwMB7U+ZQAAAABb3JOVAHPoneaAAABdElEQVQoz52Sy07bQBRA753xjO34kRC1eVAWCFWioiv4B76B30WVumtUCQkkIkDQJKYQnDi2ZTu2x7eL2G2QyoZZzegs5sy5gwRvLPYWAG1rT0TI/kMyhSUw4JJvE8IqEtG076PZMZkFAAC4MSiS9Jk9Dv2Kqu6X0v1HVBz92JEdJayZCuxjcAhrt6QcuVAqsYzGsw84LnOsrYv8aiAs+bDqXbaCmX2/KJr35IzCMiqS7xd+S0+8AWdFTSjsxeMwmre/ZU/70iNI1Ma6YrdZMOweOdMj5+TJ4l586Gzcqpj97P7+dWoIRsn5zdkk+fpJggYADBexftdeBWuR26X7mO21q/oeTVWBu5ASNGmj7mkgeF2Hmzv6muYfDQ4vQvW5BaJpEMKoCDPXSVd+t9fabZtGU9SMO6kdLa/FZ9NGMqTRdCNcJ97E1ZDWLBAnuo1/ixIWWXq/PPD9PX2ovZoCAOUqLQBbXAh4TQCgIkDE5oTv+Dt/ABfJpkF0cVn+AAAAAElFTkSuQmCC" alt="SR 11-7">SR 11-7</span>
+                <span class="badge"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACwAAAAYCAMAAAC2se+IAAAAIGNIUk0AAHomAACAhAAA+gAAAIDoAAB1MAAA6mAAADqYAAAXcJy6UTwAAAIlUExURQAAACmW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0imW0v///9TkIpQAAAC1dFJOUwAAJE8GBTtiZbpHcyECM2ma0r88XujAdT0MB1mZxcfL07xQe93Vyah0H1OWxLuzrdDbxsHOpxhKgKLCnSwEEzB8w72yaoFvnBcBLUZEQhUmRRqxqX9IG1ENN/mEEiq5/JGGCE644LDn+qBJiYp2P/thNM93tqFgGZVfJ6SvckGM61RozOy+k4PIcZIiFgv+TI9Wt2Nnnqrz0YggWg8dgj4Ko1svhSMR98o4tDYrQxQJeDE5jQ6mD6p3AAAAAWJLR0S2qgcL8QAAAAd0SU1FB+oDHxciMkLdDQgAAAAldEVYdGRhdGU6Y3JlYXRlADIwMjYtMDMtMzFUMjM6MzQ6MjArMDA6MDCuQRmrAAAAJXRFWHRkYXRlOm1vZGlmeQAyMDI2LTAzLTMxVDIzOjM0OjIwKzAwOjAw3xyhFwAAACh0RVh0ZGF0ZTp0aW1lc3RhbXAAMjAyNi0wMy0zMVQyMzozNDo1MCswMDowMILMidEAAAIMSURBVDjLY2AgDzDCAJFKmZhZCKsGq2RlY+fg5OLmIWA6UJKXj19AUEhYhENUTFxCEp9qRilpGVk5eQVFJQ5lFVU1WXUNTTyKWbW0BXV0VVX09A0MjYxNTEXMGPE5g8fcwlJeR83Y2ErIWtoGvyeBsrZ29g6OTs5cPJK8ONUyIgEXVzd3D0ZUAFMCUezp5e3j6+fP5R0QyBYUHMLqF8AV4OPL4wlU4BVqywhSGxYeAVHNyBhpFBUdExsXr+0hIZCQmGQXHRWXnJIqzcgolZYeC1TEyGiREQ5TzJi5NYuRMXurCGOkQE6uFGNeviljwVZnW8bCoq3FIBd4lGxVt4WpLt1aZlZesbWSsaq6ptaTsQ6oOHdrPaOnW0GDfAxQcWNTc4s9QrF1bW0rUDFfW3suK2NdVEdnSlcgY3d0j3O8EiNjbzZT4lYLuOK+fpAzKhnNJlRPZGSsy5hU5QH032SZKVO3mtoySkxzy5k+w4OREeHmmUA3z0qsn80IdHMwyKVzJsxlCTQB2j9vPuuChVsXgYKP0XOxUNSSmKU1+drlC5QzhRmXKS9fsdKT0S6ktZCRaVV8Joe8lq3dhHyr1WDFa3zW1q1bunbt2rD1G2Q2Mq6rC/BezMvo5+Pt5bnUJyBgrfcmlh5fHy4vT0aUGGQp2OzPiAegxrwNvy0jA3GAkXGLPyOxihmIzK7EAQD29oB+rCF+ZwAAAABJRU5ErkJggg==" alt="HIPAA">HIPAA</span>
+                <span class="badge"><img src="data:image/png;base64,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" alt="FDA 21 CFR 11">FDA 21 CFR 11</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="how-it-works">
+        <div class="wrap">
+          <div class="section-head reveal">
+            <span class="section-kicker">How It Works</span>
+            <h2>Capture the evidence path from agent action to auditor-ready proof.</h2>
+          </div>
+          <div class="steps-grid">
+            <article class="step-card reveal delay-1">
+              <h3>Ingest</h3>
+              <p>Stream agent runs, approvals, tool calls, and policy events into one independent record of execution.</p>
+            </article>
+            <article class="step-card reveal delay-2">
+              <h3>Verify</h3>
+              <p>Detect gaps, chain actions to reviewers, and confirm integrity before incidents or model-risk reviews escalate.</p>
+            </article>
+            <article class="step-card reveal delay-3">
+              <h3>Prove</h3>
+              <p>Hand auditors a clear ledger of what happened, who approved it, and which controls were enforced.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="section security">
+        <div class="wrap">
+          <div class="section-head reveal">
+            <span class="section-kicker">Deployment</span>
+            <h2>Enterprise-ready from day one</h2>
+            <p>Built for security reviews, internal platform teams, and regulated environments that cannot ship on trust alone.</p>
+          </div>
+          <div class="security-grid">
+            <article class="security-card reveal delay-1">
+              <h3>Self-hosted</h3>
+              <p>Run Trailing inside your own infrastructure and keep audit evidence within your network perimeter.</p>
+            </article>
+            <article class="security-card reveal delay-2">
+              <h3>Immutable ledger</h3>
+              <p>Preserve a tamper-evident execution history so investigations do not depend on mutable application logs.</p>
+            </article>
+            <article class="security-card reveal delay-3">
+              <h3>Zero vendor lock-in</h3>
+              <p>Use open formats and open code so your compliance system stays portable as your stack evolves.</p>
+            </article>
+            <article class="security-card reveal delay-3">
+              <h3>Apache 2.0</h3>
+              <p>Adopt, extend, and review the source without procurement surprises or restrictive commercial licensing.</p>
+            </article>
+          </div>
+
+          <div class="cta-panel reveal">
+            <div class="cta-inner">
+              <h2>See Trailing in action</h2>
+              <p>Walk through the live product, inspect the audit trail, and see how teams document AI behavior without changing their entire stack.</p>
+              <div class="cta-actions">
+                <a href="https://calendly.com/trailing" class="btn-light">Book a Demo</a>
+                <a href="https://github.com/trailingai/trailing#readme" class="btn-ghost">Read the docs</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <div class="footer-inner">
+        <div>
+          <a href="/" class="footer-brand">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="4" y1="9" x2="20" y2="9"/><line x1="4" y1="15" x2="20" y2="15"/><line x1="10" y1="3" x2="8" y2="21"/><line x1="16" y1="3" x2="14" y2="21"/></svg>
+            <span>Trailing</span>
+          </a>
+          <p class="footer-tagline">Know what your AI agents did. Prove it to regulators, model risk committees, and internal audit.</p>
+        </div>
+        <div class="footer-col">
+          <h4>Product</h4>
+          <a href="/dashboard">Dashboard</a>
+          <a href="/v1/openapi.yml">API Spec</a>
+          <a href="https://github.com/trailingai/trailing#readme">Docs</a>
+          <a href="https://github.com/trailingai/trailing">GitHub</a>
+        </div>
+        <div class="footer-col">
+          <h4>Compliance</h4>
+          <a href="/dashboard">EU AI Act</a>
+          <a href="/dashboard">NIST AI RMF</a>
+          <a href="/dashboard">SR 11-7</a>
+          <a href="/dashboard">HIPAA</a>
+          <a href="/dashboard">FDA 21 CFR 11</a>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <script>
+    (function () {
+      var toggle = document.getElementById("nav-toggle");
+      var navLinks = document.getElementById("nav-links");
+
+      if (!toggle || !navLinks) {
+        return;
+      }
+
+      toggle.addEventListener("click", function () {
+        var isOpen = navLinks.classList.toggle("open");
+        toggle.setAttribute("aria-expanded", isOpen ? "true" : "false");
+      });
+    })();
+  </script>
+  <script>
+    (function(){
+      var els = document.querySelectorAll('.reveal');
+      if (!('IntersectionObserver' in window)) { els.forEach(function(e){ e.classList.add('visible'); }); return; }
+      var io = new IntersectionObserver(function(entries){
+        entries.forEach(function(entry){
+          if (entry.isIntersecting) { entry.target.classList.add('visible'); io.unobserve(entry.target); }
+        });
+      }, { threshold: 0.15 });
+      els.forEach(function(e){ if (!e.classList.contains('no-anim')) io.observe(e); });
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,1054 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Trailing | Independent compliance for autonomous AI agents</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap');
+    :root {
+      --zinc-50: #fafafa;
+      --zinc-100: #f4f4f5;
+      --zinc-200: #e4e4e7;
+      --zinc-300: #d4d4d8;
+      --zinc-400: #a1a1aa;
+      --zinc-500: #71717a;
+      --zinc-600: #52525b;
+      --zinc-700: #3f3f46;
+      --zinc-800: #27272a;
+      --zinc-900: #18181b;
+      --white: #ffffff;
+      --shadow-soft: 0 24px 80px -36px rgba(24, 24, 27, 0.24);
+      --shadow-frame: 0 40px 120px -54px rgba(24, 24, 27, 0.38);
+      --sans: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+      --mono: 'IBM Plex Mono', 'SF Mono', 'Cascadia Mono', Consolas, monospace;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--sans);
+      color: var(--zinc-900);
+      background: var(--white);
+      -webkit-font-smoothing: antialiased;
+      line-height: 1.5;
+      background-image:
+        linear-gradient(rgba(228, 228, 231, 0.55) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(228, 228, 231, 0.55) 1px, transparent 1px);
+      background-size: 52px 52px;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      background:
+        radial-gradient(circle at 50% 12%, rgba(255, 255, 255, 0.99) 0, rgba(255, 255, 255, 0.96) 28%, rgba(255, 255, 255, 0.72) 50%, rgba(255, 255, 255, 0) 74%);
+    }
+
+    a, button { font: inherit; }
+
+    .page-shell {
+      position: relative;
+      z-index: 1;
+      min-height: 100vh;
+    }
+
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: rgba(255, 255, 255, 0.84);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border-bottom: 1px solid rgba(228, 228, 231, 0.8);
+    }
+
+    .nav {
+      max-width: 76rem;
+      margin: 0 auto;
+      padding: 14px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .nav-brand,
+    .footer-brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+      color: var(--zinc-900);
+    }
+
+    .nav-brand svg,
+    .footer-brand svg {
+      width: 24px;
+      height: 24px;
+      transform: scaleX(-1);
+    }
+
+    .nav-brand span,
+    .footer-brand span {
+      font-size: 18px;
+      font-weight: 800;
+      letter-spacing: -0.04em;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 22px;
+      margin-left: auto;
+    }
+
+    .nav-links a {
+      text-decoration: none;
+      color: var(--zinc-600);
+      font-size: 14px;
+      transition: color 0.18s ease;
+    }
+
+    .nav-links a.btn-dark {
+      color: var(--white);
+    }
+
+    .nav-links a:hover,
+    .footer-col a:hover {
+      color: var(--zinc-900);
+    }
+
+    .nav-links a.btn-dark:hover {
+      color: var(--white);
+    }
+
+    .burger {
+      display: none;
+      border: none;
+      background: transparent;
+      color: var(--zinc-600);
+      padding: 8px;
+      margin-right: -8px;
+      cursor: pointer;
+    }
+
+    .btn-dark,
+    .btn-border,
+    .btn-light,
+    .btn-ghost {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-height: 46px;
+      padding: 0 20px;
+      border-radius: 12px;
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease, border-color 0.18s ease, color 0.18s ease;
+    }
+
+    .btn-dark {
+      background: var(--zinc-900);
+      color: var(--white);
+      box-shadow: 0 16px 32px -20px rgba(24, 24, 27, 0.8);
+    }
+
+    .btn-dark:hover,
+    .btn-light:hover {
+      transform: translateY(-1px);
+    }
+
+    .btn-dark:hover {
+      background: #111111;
+      box-shadow: 0 24px 36px -24px rgba(24, 24, 27, 0.82);
+    }
+
+    .btn-border {
+      border: 1px solid var(--zinc-200);
+      background: rgba(255, 255, 255, 0.84);
+      color: var(--zinc-700);
+    }
+
+    .btn-border:hover {
+      border-color: var(--zinc-300);
+      background: var(--zinc-50);
+    }
+
+    .btn-border svg { width: 16px; height: 16px; fill: currentColor; }
+
+    .btn-light {
+      background: var(--white);
+      color: var(--zinc-900);
+      box-shadow: 0 22px 36px -24px rgba(255, 255, 255, 0.22);
+    }
+
+    .btn-ghost {
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      color: var(--white);
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    .wrap {
+      max-width: 76rem;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    .hero {
+      padding: 72px 0 56px;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr);
+      gap: 44px;
+      align-items: center;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(212, 212, 216, 0.9);
+      background: rgba(255, 255, 255, 0.78);
+      box-shadow: 0 16px 40px -32px rgba(24, 24, 27, 0.5);
+      color: var(--zinc-600);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .eyebrow-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: var(--zinc-900);
+    }
+
+    .hero-copy h1 {
+      margin-top: 22px;
+      max-width: 11ch;
+      font-size: clamp(3.25rem, 7vw, 5.35rem);
+      line-height: 0.94;
+      letter-spacing: -0.065em;
+      font-weight: 700;
+      text-wrap: balance;
+    }
+
+    .hero-copy .sub {
+      margin-top: 22px;
+      max-width: 34rem;
+      font-size: 18px;
+      line-height: 1.72;
+      color: var(--zinc-600);
+      text-wrap: balance;
+    }
+
+    .hero-btns {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-top: 30px;
+      flex-wrap: wrap;
+    }
+
+    .hero-meta {
+      margin-top: 18px;
+      color: var(--zinc-500);
+      font-size: 13px;
+      letter-spacing: 0.01em;
+    }
+
+    .hero-frame-wrap {
+      position: relative;
+    }
+
+    .hero-frame-wrap::before,
+    .hero-frame-wrap::after {
+      content: "";
+      position: absolute;
+      inset: auto;
+      border-radius: 999px;
+      filter: blur(60px);
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .hero-frame-wrap::before {
+      width: 210px;
+      height: 210px;
+      top: -34px;
+      right: 28px;
+      background: rgba(161, 161, 170, 0.22);
+    }
+
+    .hero-frame-wrap::after {
+      width: 180px;
+      height: 180px;
+      left: 14px;
+      bottom: -20px;
+      background: rgba(39, 39, 42, 0.1);
+    }
+
+    .browser-shell {
+      position: relative;
+      z-index: 1;
+      border-radius: 26px;
+      overflow: hidden;
+      border: 1px solid rgba(228, 228, 231, 0.95);
+      background: rgba(255, 255, 255, 0.9);
+      box-shadow: var(--shadow-frame);
+    }
+
+    .browser-topbar {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 14px 18px;
+      background: linear-gradient(180deg, rgba(250, 250, 250, 0.96) 0%, rgba(244, 244, 245, 0.92) 100%);
+      border-bottom: 1px solid rgba(228, 228, 231, 0.92);
+    }
+
+    .window-dots {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      flex-shrink: 0;
+    }
+
+    .window-dots span {
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      display: block;
+    }
+
+    .window-dots .dot-r { background: #ff5f57; }
+    .window-dots .dot-y { background: #febc2e; }
+    .window-dots .dot-g { background: #28c840; }
+
+    .browser-address {
+      min-width: 0;
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(228, 228, 231, 0.95);
+      background: rgba(255, 255, 255, 0.96);
+      color: var(--zinc-500);
+      font-family: var(--mono);
+      font-size: 12px;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+
+    .browser-address strong {
+      color: var(--zinc-700);
+      font-weight: 600;
+    }
+
+    .browser-body {
+      background: #121212;
+      padding: 0;
+      aspect-ratio: 1.34 / 1;
+      overflow: hidden;
+    }
+
+    .dash-mock {
+      font-family: 'Manrope', -apple-system, sans-serif;
+      color: #fff;
+      font-size: 11px;
+      padding: 0;
+      height: 100%;
+      display: flex;
+    }
+    .dm-side {
+      width: 40px;
+      background: #0a0a0a;
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 8px 0;
+      gap: 2px;
+      border-right: 1px solid rgba(255,255,255,.06);
+    }
+    .dm-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #616161;
+      font-size: 13px;
+    }
+    .dm-icon.active {
+      background: #31363c;
+      color: #fff;
+    }
+    .dm-main {
+      flex: 1;
+      padding: 14px 18px;
+      overflow: hidden;
+    }
+    .dm-topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    .dm-title {
+      font-size: 12px;
+      font-weight: 500;
+    }
+    .dm-pills {
+      display: flex;
+      gap: 4px;
+    }
+    .dm-pill {
+      padding: 3px 10px;
+      border-radius: 4px;
+      font-size: 9px;
+      font-weight: 500;
+      border: 1px solid #333;
+      background: #1e1e1e;
+      color: #ccc;
+    }
+    .dm-pill.on {
+      background: #404040;
+      color: #fff;
+    }
+    .dm-cards {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+    .dm-card {
+      background: #1e1e1e;
+      border: 1px solid #333;
+      border-radius: 6px;
+      padding: 12px;
+    }
+    .dm-card-label {
+      font-size: 9px;
+      color: #ccc;
+      margin-bottom: 6px;
+    }
+    .dm-card-val {
+      font-size: 22px;
+      font-weight: 700;
+      line-height: 1;
+      font-variant-numeric: tabular-nums;
+    }
+    .dm-card-sub {
+      font-size: 8px;
+      color: #616161;
+      margin-top: 4px;
+    }
+    .dm-green { color: #4ade80; }
+    .dm-amber { color: #fbbf24; }
+    .dm-cards-3 {
+      grid-template-columns: 1fr 1fr 1fr;
+    }
+    .dm-mini-label {
+      font-size: 9px;
+      color: #ccc;
+      margin-bottom: 4px;
+      display: flex;
+      justify-content: space-between;
+    }
+    .dm-mini-link {
+      color: #b1c8ff;
+      font-size: 8px;
+    }
+    .dm-agent-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 3px 0;
+      border-bottom: 1px solid rgba(255,255,255,.04);
+      font-size: 9px;
+    }
+    .dm-agent-name { color: #fff; }
+    .dm-agent-count { color: #616161; }
+
+    .section {
+      padding: 44px 0 0;
+    }
+
+    .section + .section {
+      padding-top: 84px;
+    }
+
+    .section-head {
+      max-width: 44rem;
+      margin-bottom: 28px;
+    }
+
+    .section-kicker {
+      display: inline-block;
+      margin-bottom: 12px;
+      color: var(--zinc-500);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.11em;
+      text-transform: uppercase;
+    }
+
+    .section-head h2 {
+      font-size: clamp(2rem, 4.8vw, 3rem);
+      line-height: 1.02;
+      letter-spacing: -0.05em;
+      font-weight: 650;
+      text-wrap: balance;
+    }
+
+    .section-head p {
+      margin-top: 14px;
+      color: var(--zinc-600);
+      font-size: 17px;
+      line-height: 1.72;
+      text-wrap: balance;
+    }
+
+    .trust {
+      padding-top: 72px;
+    }
+
+    .trust-card {
+      padding: 26px;
+      border-radius: 26px;
+      border: 1px solid rgba(228, 228, 231, 0.92);
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.96) 0%, rgba(250, 250, 250, 0.96) 100%);
+      box-shadow: var(--shadow-soft);
+    }
+
+    .trust-row {
+      display: block;
+    }
+
+    .trust-row h2 {
+      font-size: clamp(1.65rem, 3vw, 2.2rem);
+      line-height: 1.05;
+      letter-spacing: -0.045em;
+      font-weight: 650;
+      max-width: 30rem;
+    }
+
+    .trust-row p {
+      margin-top: 14px;
+      max-width: 42rem;
+      color: var(--zinc-600);
+      font-size: 16px;
+      line-height: 1.72;
+      text-wrap: balance;
+    }
+
+    .badge-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(148px, 1fr));
+      gap: 14px;
+      margin-top: 26px;
+    }
+
+    .badge {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      min-height: 110px;
+      padding: 18px 16px;
+      border-radius: 20px;
+      border: 1px solid rgba(212, 212, 216, 0.9);
+      background: rgba(255, 255, 255, 0.9);
+      color: var(--zinc-700);
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      text-align: center;
+    }
+    .badge img {
+      max-width: 100%;
+      max-height: 40px;
+      width: auto;
+      height: auto;
+      object-fit: contain;
+    }
+
+    .steps-grid,
+    .security-grid {
+      display: grid;
+      gap: 16px;
+    }
+
+    .steps-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .security-grid {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .step-card,
+    .security-card {
+      border-radius: 22px;
+      border: 1px solid rgba(228, 228, 231, 0.92);
+      background: rgba(255, 255, 255, 0.88);
+      padding: 24px;
+      box-shadow: var(--shadow-soft);
+    }
+
+    .step-card h3,
+    .security-card h3 {
+      font-size: 18px;
+      line-height: 1.08;
+      letter-spacing: -0.03em;
+      font-weight: 650;
+    }
+
+    .step-card p,
+    .security-card p {
+      margin-top: 10px;
+      color: var(--zinc-600);
+      font-size: 15px;
+      line-height: 1.68;
+    }
+
+    .security {
+      padding-bottom: 92px;
+    }
+
+    .cta-panel {
+      margin-top: 92px;
+      border-radius: 32px;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at top left, rgba(82, 82, 91, 0.22), transparent 34%),
+        linear-gradient(180deg, #202024 0%, #161618 100%);
+      border: 1px solid rgba(63, 63, 70, 0.85);
+      box-shadow: 0 40px 110px -60px rgba(24, 24, 27, 0.7);
+    }
+
+    .cta-inner {
+      padding: 72px 32px;
+      text-align: center;
+    }
+
+    .cta-inner h2 {
+      color: var(--white);
+      font-size: clamp(2.2rem, 5vw, 3.35rem);
+      line-height: 0.98;
+      letter-spacing: -0.055em;
+      font-weight: 650;
+      text-wrap: balance;
+    }
+
+    .cta-inner p {
+      max-width: 38rem;
+      margin: 16px auto 0;
+      color: rgba(244, 244, 245, 0.74);
+      font-size: 17px;
+      line-height: 1.74;
+      text-wrap: balance;
+    }
+
+    .cta-actions {
+      display: flex;
+      justify-content: center;
+      gap: 14px;
+      flex-wrap: wrap;
+      margin-top: 28px;
+    }
+
+    footer {
+      margin-top: 28px;
+      padding: 48px 0 56px;
+      border-top: 1px solid rgba(228, 228, 231, 0.92);
+      background: rgba(250, 250, 250, 0.74);
+    }
+
+    .footer-inner {
+      max-width: 76rem;
+      margin: 0 auto;
+      padding: 0 24px;
+      display: grid;
+      grid-template-columns: minmax(0, 1.2fr) repeat(2, minmax(0, 0.7fr));
+      gap: 28px;
+      align-items: start;
+    }
+
+    .footer-tagline {
+      margin-top: 14px;
+      max-width: 22rem;
+      color: var(--zinc-600);
+      font-size: 14px;
+      line-height: 1.7;
+    }
+
+    .footer-col h4 {
+      margin-bottom: 14px;
+      color: var(--zinc-900);
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+    }
+
+    .footer-col a {
+      display: block;
+      margin-bottom: 12px;
+      text-decoration: none;
+      color: var(--zinc-600);
+      font-size: 14px;
+      transition: color 0.18s ease;
+    }
+
+    .reveal {
+      opacity: 0;
+      transform: translateY(16px);
+      transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1), transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .reveal.no-anim {
+      opacity: 1;
+      transform: none;
+      transition: none;
+    }
+
+    .delay-1 { transition-delay: 0.08s; }
+    .delay-2 { transition-delay: 0.16s; }
+    .delay-3 { transition-delay: 0.24s; }
+
+    @media (max-width: 1120px) {
+      .hero-grid,
+      .footer-inner,
+      .security-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-copy {
+        text-align: center;
+      }
+
+      .hero-copy h1,
+      .hero-copy .sub {
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+      .hero-btns,
+      .hero-meta {
+        justify-content: center;
+      }
+
+    }
+
+    @media (max-width: 900px) {
+      .steps-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 760px) {
+      .nav {
+        position: relative;
+      }
+
+      .nav-links {
+        display: none;
+        position: absolute;
+        top: calc(100% + 12px);
+        left: 24px;
+        right: 24px;
+        padding: 18px;
+        border-radius: 18px;
+        border: 1px solid rgba(228, 228, 231, 0.92);
+        background: rgba(255, 255, 255, 0.98);
+        box-shadow: var(--shadow-soft);
+        flex-direction: column;
+        align-items: stretch;
+        gap: 14px;
+      }
+
+      .nav-links.open { display: flex; }
+
+      .nav-links .cta {
+        justify-content: center;
+      }
+
+      .burger { display: inline-flex; }
+
+      .hero {
+        padding-top: 48px;
+      }
+
+      .hero-copy h1 {
+        font-size: clamp(2.8rem, 14vw, 4rem);
+      }
+
+      .hero-copy .sub,
+      .section-head p,
+      .cta-inner p {
+        font-size: 16px;
+      }
+
+      .browser-topbar {
+        gap: 10px;
+        padding: 12px 14px;
+      }
+
+      .browser-address {
+        font-size: 11px;
+        padding: 8px 12px;
+      }
+
+      .cta-inner {
+        padding: 56px 22px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page-shell">
+    <header>
+      <nav class="nav">
+        <a href="/" class="nav-brand">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="4" y1="9" x2="20" y2="9"/><line x1="4" y1="15" x2="20" y2="15"/><line x1="10" y1="3" x2="8" y2="21"/><line x1="16" y1="3" x2="14" y2="21"/></svg>
+          <span>Trailing</span>
+        </a>
+        <div class="nav-links" id="nav-links">
+          <a href="/dashboard">Dashboard</a>
+          <a href="https://github.com/trailingai/trailing#readme">Docs</a>
+          <a href="https://github.com/trailingai/trailing">GitHub</a>
+          <a class="btn-dark cta" href="https://calendly.com/trailing">Book a Demo</a>
+        </div>
+        <button type="button" class="burger" id="nav-toggle" aria-label="Open menu" aria-expanded="false" aria-controls="nav-links">
+          <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"/></svg>
+        </button>
+      </nav>
+    </header>
+
+    <main>
+      <section class="hero">
+        <div class="wrap hero-grid">
+          <div class="hero-copy">
+            <h1 class="reveal no-anim">Know what your AI agents did. Prove it.</h1>
+            <p class="sub reveal delay-2">Independent compliance and audit system of record for autonomous AI agents. Immutable evidence trails for hospitals, banks, and every team that has to answer to auditors.</p>
+            <div class="hero-btns reveal delay-3">
+              <a href="https://calendly.com/trailing" class="btn-dark">Book a Demo</a>
+              <a href="https://github.com/trailingai/trailing" class="btn-border">
+                <svg viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+                Star on GitHub
+              </a>
+            </div>
+          </div>
+
+          <div class="hero-frame-wrap reveal delay-2">
+            <div class="browser-shell">
+              <div class="browser-topbar">
+                <div class="window-dots" aria-hidden="true">
+                  <span class="dot-r"></span>
+                  <span class="dot-y"></span>
+                  <span class="dot-g"></span>
+                </div>
+                <div class="browser-address">
+                  <strong>trailing.ai</strong>
+                  <span>/dashboard</span>
+                </div>
+              </div>
+              <div class="browser-body">
+                <div class="dash-mock">
+                  <div class="dm-side">
+                    <div class="dm-icon" style="margin-bottom:8px;background:rgba(255,255,255,.05);font-size:11px;color:#b1c8ff">#</div>
+                    <div class="dm-icon active">⌂</div>
+                    <div class="dm-icon">≡</div>
+                    <div class="dm-icon">◇</div>
+                    <div class="dm-icon">◎</div>
+                    <div class="dm-icon">⟡</div>
+                  </div>
+                  <div class="dm-main">
+                    <div class="dm-topbar">
+                      <span class="dm-title">Compliance Audit Dashboard</span>
+                      <div class="dm-pills">
+                        <span class="dm-pill">Today</span>
+                        <span class="dm-pill">7D</span>
+                        <span class="dm-pill on">30D</span>
+                      </div>
+                    </div>
+                    <div class="dm-cards">
+                      <div class="dm-card"><div class="dm-card-label">Compliance Score</div><div class="dm-card-val dm-green">87%</div><div class="dm-card-sub">EU AI Act · 1,247 actions</div></div>
+                      <div class="dm-card"><div class="dm-card-label">Chain Integrity</div><div class="dm-card-val dm-green">Valid</div><div class="dm-card-sub">1,247 entries verified</div></div>
+                      <div class="dm-card"><div class="dm-card-label">Total Actions</div><div class="dm-card-val">1,247</div><div class="dm-card-sub">Last: 2026-03-31 14:23</div></div>
+                      <div class="dm-card"><div class="dm-card-label">Oversight Events</div><div class="dm-card-val">38</div><div class="dm-card-sub">38 interventions</div></div>
+                    </div>
+                    <div class="dm-cards dm-cards-3">
+                      <div class="dm-card"><div class="dm-mini-label"><span>Top Active Agents</span><span class="dm-mini-link">View all</span></div><div class="dm-agent-row"><span class="dm-agent-name">crewai-research</span><span class="dm-agent-count">412</span></div><div class="dm-agent-row"><span class="dm-agent-name">langchain-rag</span><span class="dm-agent-count">298</span></div><div class="dm-agent-row"><span class="dm-agent-name">claude-code-deploy</span><span class="dm-agent-count">187</span></div></div>
+                      <div class="dm-card"><div class="dm-mini-label"><span>Pending Oversight</span><span class="dm-mini-link">View all</span></div><div class="dm-agent-row"><span class="dm-agent-name">3 events to review</span></div></div>
+                      <div class="dm-card"><div class="dm-mini-label"><span>Recent Sessions</span><span class="dm-mini-link">View all</span></div><div class="dm-agent-row"><span class="dm-agent-name">sess_a1b2c3d4</span></div><div class="dm-agent-row"><span class="dm-agent-name">sess_e5f6g7h8</span></div><div class="dm-agent-row"><span class="dm-agent-name">sess_i9j0k1l2</span></div></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="trust">
+        <div class="wrap">
+          <div class="trust-card reveal">
+            <div class="trust-row">
+              <span class="section-kicker">Supported Frameworks</span>
+              <h2>Built for the frameworks your auditors already expect.</h2>
+              <p>Map agent activity to the healthcare, banking, model-risk, and AI governance frameworks teams already have to satisfy.</p>
+              <div class="badge-row" aria-label="Compliance frameworks">
+                <span class="badge"><img src="__EU_AI_ACT_SMALL__" alt="EU AI Act logo">EU AI Act</span>
+                <span class="badge"><img src="__HIPAA_SMALL__" alt="HIPAA logo">HIPAA</span>
+                <span class="badge"><img src="__NIST_AI_RMF_SMALL__" alt="NIST AI RMF logo">NIST AI RMF</span>
+                <span class="badge"><img src="__FDA_21_CFR_11_SMALL__" alt="FDA 21 CFR 11 logo">FDA 21 CFR 11</span>
+                <span class="badge"><img src="__SR_11_7_SMALL__" alt="SR 11-7 logo">SR 11-7</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="how-it-works">
+        <div class="wrap">
+          <div class="section-head reveal">
+            <span class="section-kicker">How It Works</span>
+            <h2>Capture the evidence path from agent action to auditor-ready proof.</h2>
+          </div>
+          <div class="steps-grid">
+            <article class="step-card reveal delay-1">
+              <h3>Ingest</h3>
+              <p>Stream agent runs, approvals, tool calls, and policy events into one independent record of execution.</p>
+            </article>
+            <article class="step-card reveal delay-2">
+              <h3>Verify</h3>
+              <p>Detect gaps, chain actions to reviewers, and confirm integrity before incidents or model-risk reviews escalate.</p>
+            </article>
+            <article class="step-card reveal delay-3">
+              <h3>Prove</h3>
+              <p>Hand auditors a clear ledger of what happened, who approved it, and which controls were enforced.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="section security">
+        <div class="wrap">
+          <div class="section-head reveal">
+            <span class="section-kicker">Deployment</span>
+            <h2>Enterprise-ready from day one</h2>
+            <p>Built for security reviews, internal platform teams, and regulated environments that cannot ship on trust alone.</p>
+          </div>
+          <div class="security-grid">
+            <article class="security-card reveal delay-1">
+              <h3>Self-hosted</h3>
+              <p>Run Trailing inside your own infrastructure and keep audit evidence within your network perimeter.</p>
+            </article>
+            <article class="security-card reveal delay-2">
+              <h3>Immutable ledger</h3>
+              <p>Preserve a tamper-evident execution history so investigations do not depend on mutable application logs.</p>
+            </article>
+            <article class="security-card reveal delay-3">
+              <h3>Zero vendor lock-in</h3>
+              <p>Use open formats and open code so your compliance system stays portable as your stack evolves.</p>
+            </article>
+            <article class="security-card reveal delay-3">
+              <h3>Apache 2.0</h3>
+              <p>Adopt, extend, and review the source without procurement surprises or restrictive commercial licensing.</p>
+            </article>
+          </div>
+
+          <div class="cta-panel reveal">
+            <div class="cta-inner">
+              <h2>See Trailing in action</h2>
+              <p>Walk through the live product, inspect the audit trail, and see how teams document AI behavior without changing their entire stack.</p>
+              <div class="cta-actions">
+                <a href="https://calendly.com/trailing" class="btn-light">Book a Demo</a>
+                <a href="https://github.com/trailingai/trailing#readme" class="btn-ghost">Read the docs</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <div class="footer-inner">
+        <div>
+          <a href="/" class="footer-brand">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="4" y1="9" x2="20" y2="9"/><line x1="4" y1="15" x2="20" y2="15"/><line x1="10" y1="3" x2="8" y2="21"/><line x1="16" y1="3" x2="14" y2="21"/></svg>
+            <span>Trailing</span>
+          </a>
+          <p class="footer-tagline">Know what your AI agents did. Prove it to regulators, model risk committees, and internal audit.</p>
+        </div>
+        <div class="footer-col">
+          <h4>Product</h4>
+          <a href="/dashboard">Dashboard</a>
+          <a href="/v1/openapi.yml">API Spec</a>
+          <a href="https://github.com/trailingai/trailing#readme">Docs</a>
+          <a href="https://github.com/trailingai/trailing">GitHub</a>
+        </div>
+        <div class="footer-col">
+          <h4>Compliance</h4>
+          <a href="/dashboard">EU AI Act</a>
+          <a href="/dashboard">NIST AI RMF</a>
+          <a href="/dashboard">SR 11-7</a>
+          <a href="/dashboard">HIPAA</a>
+          <a href="/dashboard">FDA 21 CFR 11</a>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <script>
+    (function () {
+      var toggle = document.getElementById("nav-toggle");
+      var navLinks = document.getElementById("nav-links");
+
+      if (!toggle || !navLinks) {
+        return;
+      }
+
+      toggle.addEventListener("click", function () {
+        var isOpen = navLinks.classList.toggle("open");
+        toggle.setAttribute("aria-expanded", isOpen ? "true" : "false");
+      });
+    })();
+  </script>
+  <script>
+    (function(){
+      var els = document.querySelectorAll('.reveal');
+      if (!('IntersectionObserver' in window)) { els.forEach(function(e){ e.classList.add('visible'); }); return; }
+      var io = new IntersectionObserver(function(entries){
+        entries.forEach(function(entry){
+          if (entry.isIntersecting) { entry.target.classList.add('visible'); io.unobserve(entry.target); }
+        });
+      }, { threshold: 0.15 });
+      els.forEach(function(e){ if (!e.classList.contains('no-anim')) io.observe(e); });
+    })();
+  </script>
+</body>
+</html>

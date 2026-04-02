@@ -1,0 +1,28 @@
+services:
+  trailing:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: trailing:local
+    environment:
+      TRAILING_PORT: ${TRAILING_PORT:-3001}
+      TRAILING_API_KEY: ${TRAILING_API_KEY:-}
+      TRAILING_DB_PATH: ${TRAILING_DB_PATH:-/data/trailing.db}
+    ports:
+      - "${TRAILING_PORT:-3001}:${TRAILING_PORT:-3001}"
+    volumes:
+      - trailing-data:/data
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "if [ -n \"$$TRAILING_API_KEY\" ]; then curl -fsS -H \"x-api-key: $$TRAILING_API_KEY\" \"http://127.0.0.1:$$TRAILING_PORT/v1/health\" >/dev/null; else curl -fsS \"http://127.0.0.1:$$TRAILING_PORT/v1/health\" >/dev/null; fi"
+        ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    restart: unless-stopped
+
+volumes:
+  trailing-data:

@@ -1,0 +1,26 @@
+services:
+  trailing:
+    environment:
+      TRAILING_DB_PATH: ${TRAILING_DB_PATH:-postgres://trailing:trailing@postgres:5432/trailing}
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-trailing}
+      POSTGRES_USER: ${POSTGRES_USER:-trailing}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-trailing}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    restart: unless-stopped
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+volumes:
+  postgres-data:

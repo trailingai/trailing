@@ -1,0 +1,1510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Trailing | Compliance Audit Dashboard</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap');
+    :root {
+      --bg: #121212;
+      --surface: #1e1e1e;
+      --hover: #404040;
+      --divider: #333;
+      --text: #fff;
+      --text-2: #ccc;
+      --text-3: #616161;
+      --text-disabled: #595959;
+      --primary: #b1c8ff;
+      --paper: #1e1e1e;
+      --sidebar-bg: #0a0a0a;
+      --sidebar-hover: #31363c;
+      --green: #4ade80;
+      --green-dim: rgba(74,222,128,.15);
+      --red: #f87171;
+      --red-dim: rgba(248,113,113,.15);
+      --amber: #fbbf24;
+      --amber-dim: rgba(251,191,36,.15);
+      --blue: #93c5fd;
+      --blue-dim: rgba(147,197,253,.15);
+      --violet: #c4b5fd;
+      --violet-dim: rgba(196,181,253,.15);
+      --radius: 8px;
+      --sans: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      --mono: 'IBM Plex Mono', 'SF Mono', 'Cascadia Mono', Consolas, monospace;
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:var(--sans);color:var(--text);background:var(--bg);-webkit-font-smoothing:antialiased;height:100vh;display:flex;overflow:hidden;font-size:14px;line-height:1.5}
+
+    /* === SIDEBAR === */
+    .sidebar{width:56px;flex-shrink:0;height:100vh;background:var(--sidebar-bg);display:flex;flex-direction:column;align-items:center;padding:10px 0;gap:2px;border-right:1px solid rgba(255,255,255,.06)}
+    .s-logo{width:36px;height:36px;display:flex;align-items:center;justify-content:center;margin-bottom:12px;border-radius:8px;background:rgba(255,255,255,.05)}
+    .s-logo svg{width:18px;height:18px;color:var(--primary);transform:scaleX(-1)}
+    .s-btn{width:40px;height:40px;display:flex;align-items:center;justify-content:center;border-radius:8px;border:none;background:none;cursor:pointer;color:var(--text-3);transition:all .1s;position:relative}
+    .s-btn:hover{background:var(--sidebar-hover);color:var(--text-2)}
+    .s-btn.active{background:var(--sidebar-hover);color:var(--text)}
+    .s-btn svg{width:20px;height:20px}
+    .s-btn .tip{display:none;position:absolute;left:50px;top:50%;transform:translateY(-50%);background:#444;color:#fff;font-size:12px;padding:4px 10px;border-radius:6px;white-space:nowrap;z-index:99;pointer-events:none}
+    .s-btn:hover .tip{display:block}
+    .s-gap{flex:1}
+
+    /* === MAIN === */
+    .main{flex:1;height:100vh;overflow-y:auto}
+    .topbar{display:flex;align-items:center;justify-content:space-between;padding:20px 28px 16px}
+    .page-title{font-size:16px;font-weight:500;color:var(--text);letter-spacing:0.01em}
+    .topbar-r{display:flex;align-items:center;gap:8px}
+    .toast{position:fixed;bottom:20px;right:20px;background:var(--surface);border:1px solid var(--divider);border-radius:8px;padding:10px 16px;font-size:13px;color:var(--text-2);display:none;z-index:100;box-shadow:0 4px 12px rgba(0,0,0,.3)}
+    .toast.show{display:flex;align-items:center;gap:8px}
+    .toast-dot{width:8px;height:8px;border-radius:50%;background:var(--red);flex-shrink:0}
+    .btn{font-family:var(--sans);font-size:12px;font-weight:500;padding:6px 14px;border-radius:6px;cursor:pointer;border:1px solid var(--divider);background:var(--surface);color:var(--text-2);transition:all .1s}
+    .btn.active{background:var(--hover);color:var(--text);border-color:var(--primary)}
+    .btn:hover{background:var(--hover);color:var(--text)}
+    .content{padding:0 28px 28px}
+    .view{display:none}.view.active{display:block}
+
+    /* === CARDS === */
+    .cards{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
+    .cards-3{grid-template-columns:repeat(3,1fr)}
+    .card{background:var(--paper);border:1px solid var(--divider);border-radius:var(--radius);padding:20px}
+    .card-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+    .card-title{font-size:13px;font-weight:400;color:var(--text-2)}
+    .card-link{font-size:12px;color:var(--primary);text-decoration:none;cursor:pointer}
+    .card-link:hover{text-decoration:underline}
+    .card-num{font-size:32px;font-weight:700;color:var(--text);line-height:1;font-variant-numeric:tabular-nums}
+    .card-num.c-g{color:var(--green)}.card-num.c-r{color:var(--red)}.card-num.c-a{color:var(--amber)}
+    .card-sub{font-size:12px;color:var(--text-3);margin-top:6px}
+    .card-empty{text-align:center;padding:24px 0;color:var(--text-3);font-size:13px}
+
+    /* === TABS === */
+    .tabs{display:flex;gap:0;border-bottom:1px solid var(--divider);margin-bottom:16px}
+    .tab{font-family:var(--sans);font-size:13px;font-weight:500;padding:10px 20px;border:none;background:none;color:var(--text-3);cursor:pointer;border-bottom:2px solid transparent;transition:all .1s}
+    .tab:hover{color:var(--text-2)}
+    .tab.active{color:var(--text);border-bottom-color:var(--primary)}
+    .tab-pane{display:none}
+    .tab-pane.active{display:block}
+
+    /* === TABLE === */
+    .tcard{background:var(--paper);border:1px solid var(--divider);border-radius:var(--radius);overflow:hidden}
+    .tcard-top{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--divider)}
+    .tcard-title{font-size:14px;font-weight:600;color:var(--text)}
+    .tcard-meta{font-size:12px;color:var(--text-3)}
+    .filters{display:flex;gap:8px;padding:12px 20px;border-bottom:1px solid rgba(255,255,255,.04)}
+    .fi,.fs{flex:1;padding:7px 12px;border:1px solid var(--divider);border-radius:6px;font-family:var(--sans);font-size:13px;color:var(--text);background:var(--hover)}
+    .fi::placeholder{color:var(--text-3)}
+    .fi:focus,.fs:focus{outline:none;border-color:var(--primary)}
+    table{width:100%;border-collapse:collapse}
+    th{padding:10px 20px;text-align:left;font-size:12px;font-weight:400;color:var(--text-3);border-bottom:1px solid var(--divider)}
+    td{padding:12px 20px;font-size:13px;color:var(--text-2);border-bottom:1px solid rgba(255,255,255,.04)}
+    tr:last-child td{border-bottom:none}
+    tr:hover td{background:var(--hover)}
+    tr[data-id]{cursor:pointer}
+    .c-id{font-family:var(--mono);font-size:11px;color:var(--text-3)}
+    .c-time{color:var(--text-3);font-size:12px}
+    .c-agent{font-weight:500;color:var(--text)}
+    .c-hash{font-family:var(--mono);font-size:11px;color:var(--text-3);cursor:pointer}
+    .c-hash:hover{color:var(--text-2)}
+    .pill{display:inline-block;padding:2px 8px;font-size:11px;font-weight:500;border-radius:4px}
+    .p-tool{color:var(--blue);background:var(--blue-dim)}
+    .p-write{color:var(--amber);background:var(--amber-dim)}
+    .p-access{color:var(--violet);background:var(--violet-dim)}
+    .p-over{color:var(--green);background:var(--green-dim)}
+    .p-def{color:var(--text-3);background:rgba(255,255,255,.05)}
+    .expand-row td{padding:0 20px 12px;background:var(--hover)}
+    .expand-code{font-family:var(--mono);font-size:11px;line-height:1.6;background:var(--bg);border:1px solid var(--divider);border-radius:6px;padding:12px;white-space:pre-wrap;word-break:break-all;max-height:180px;overflow:auto;color:var(--text-2)}
+    .empty{padding:40px 20px;text-align:center;color:var(--text-3);font-size:13px}
+
+    /* === TIMELINE === */
+    .tl{list-style:none;padding:20px}
+    .tl-item{position:relative;padding:12px 0 12px 24px;border-left:2px solid var(--divider);margin-left:5px}
+    .tl-item:last-child{border-left-color:transparent}
+    .tl-item::before{content:"";position:absolute;left:-5px;top:16px;width:8px;height:8px;border-radius:50%;background:var(--paper);border:2px solid var(--divider)}
+    .tl-item.t-approval::before{border-color:var(--green);background:var(--green-dim)}
+    .tl-item.t-override::before{border-color:var(--amber);background:var(--amber-dim)}
+    .tl-item.t-kill::before{border-color:var(--red);background:var(--red-dim)}
+    .tl-type{font-size:12px;font-weight:500;margin-bottom:2px}
+    .tl-type.t-approval{color:var(--green)}.tl-type.t-override{color:var(--amber)}.tl-type.t-kill{color:var(--red)}
+    .tl-scope{font-size:13px;color:var(--text)}
+    .tl-meta{font-size:12px;color:var(--text-3);margin-top:2px}
+
+    /* === CHAIN === */
+    .ch{list-style:none;padding:20px}
+    .ch-n{position:relative;padding:6px 0 6px 24px;border-left:2px solid var(--green);margin-left:5px}
+    .ch-n:last-child{border-left-color:transparent}
+    .ch-n::before{content:"";position:absolute;left:-5px;top:9px;width:8px;height:8px;border-radius:50%;background:var(--paper);border:2px solid var(--green)}
+    .ch-n.ch-gen::before{border-color:var(--text-3)}
+    .ch-n.ch-bad{border-left-color:var(--red)}.ch-n.ch-bad::before{border-color:var(--red)}
+    .ch-hash{font-family:var(--mono);font-size:12px;color:var(--text-2)}
+    .ch-label{font-size:11px;color:var(--text-3);margin-left:6px}
+    .ch-tag{font-size:10px;color:var(--text-3);background:rgba(255,255,255,.06);padding:1px 6px;border-radius:3px;margin-left:6px}
+
+    /* === COMPLIANCE === */
+    .ctrl{list-style:none}
+    .ctrl-item{display:flex;align-items:center;gap:14px;padding:14px 20px;border-bottom:1px solid rgba(255,255,255,.04)}
+    .ctrl-item:last-child{border-bottom:none}
+    .ctrl-s{font-size:11px;font-weight:500;padding:2px 10px;border-radius:4px;white-space:nowrap}
+    .cs-p{color:var(--green);background:var(--green-dim)}
+    .cs-f{color:var(--red);background:var(--red-dim)}
+    .cs-w{color:var(--amber);background:var(--amber-dim)}
+    .ctrl-name{font-size:13px;font-weight:500;color:var(--text)}
+    .ctrl-desc{font-size:12px;color:var(--text-3)}
+    .btn-m{margin-left:auto;font-size:12px;padding:5px 14px;border-radius:6px;border:1px solid var(--divider);background:var(--surface);color:var(--text-2);cursor:pointer}
+    .btn-m:hover{background:var(--hover);color:var(--text)}
+    .stack{display:grid;gap:16px}
+
+    /* === MONITORING FILTERS === */
+    .filter-row{display:flex;gap:12px;margin-bottom:16px;flex-wrap:wrap}
+    .filter-group label{display:block;font-size:11px;color:var(--text-3);margin-bottom:4px;font-weight:500}
+    .filter-group select,.filter-group input{padding:7px 12px;border:1px solid var(--divider);border-radius:6px;background:var(--surface);color:var(--text);font-family:var(--sans);font-size:13px;min-width:140px}
+
+    /* === STREAM === */
+    .stream-list{list-style:none}
+    .stream-item{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:start;padding:14px 20px;border-bottom:1px solid rgba(255,255,255,.04)}
+    .stream-item:last-child{border-bottom:none}
+    .stream-body{min-width:0}
+    .stream-main{font-size:13px;color:var(--text)}
+    .stream-sub{font-size:12px;color:var(--text-3);margin-top:4px}
+    .stream-time{font-size:12px;color:var(--text-3);white-space:nowrap}
+    .stream-empty{padding:40px 20px;text-align:center;color:var(--text-3);font-size:13px}
+
+    /* === AUTH MODAL === */
+    .auth-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;z-index:200}
+    .auth-overlay.hidden{display:none}
+    .auth-card{background:var(--surface);border:1px solid var(--divider);border-radius:12px;padding:36px 32px 28px;width:380px;max-width:90vw;text-align:center;box-shadow:0 16px 48px rgba(0,0,0,.5)}
+    .auth-logo{width:44px;height:44px;display:inline-flex;align-items:center;justify-content:center;border-radius:10px;background:rgba(177,200,255,.08);margin-bottom:16px}
+    .auth-logo svg{width:22px;height:22px;color:var(--primary);transform:scaleX(-1)}
+    .auth-title{font-size:18px;font-weight:600;color:var(--text);margin-bottom:4px}
+    .auth-subtitle{font-size:13px;color:var(--text-3);margin-bottom:24px}
+    .auth-input{width:100%;padding:10px 14px;border:1px solid var(--divider);border-radius:6px;background:var(--bg);color:var(--text);font-family:var(--mono);font-size:13px;outline:none;transition:border-color .15s}
+    .auth-input::placeholder{color:var(--text-3)}
+    .auth-input:focus{border-color:var(--primary)}
+    .auth-error{font-size:12px;color:var(--red);margin-top:8px;min-height:18px}
+    .auth-btn{width:100%;padding:10px 0;margin-top:12px;border:none;border-radius:6px;background:var(--primary);color:#121212;font-family:var(--sans);font-size:14px;font-weight:600;cursor:pointer;transition:opacity .15s}
+    .auth-btn:hover{opacity:.9}
+    .auth-btn:disabled{opacity:.5;cursor:not-allowed}
+    .auth-help{font-size:11px;color:var(--text-3);margin-top:16px;line-height:1.5}
+    .auth-help code{font-family:var(--mono);font-size:11px;background:rgba(255,255,255,.06);padding:1px 5px;border-radius:3px}
+
+    /* === DISCONNECT BUTTON === */
+    .btn-disconnect{font-family:var(--sans);font-size:11px;font-weight:500;padding:5px 10px;border-radius:5px;cursor:pointer;border:1px solid var(--divider);background:none;color:var(--text-3);transition:all .1s}
+    .btn-disconnect:hover{background:var(--hover);color:var(--red);border-color:var(--red)}
+
+    @media(max-width:900px){body{flex-direction:column}.sidebar{width:100%;height:auto;flex-direction:row}.cards{grid-template-columns:1fr 1fr}.cards-3{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <!-- Auth Modal -->
+  <div class="auth-overlay" id="auth-overlay">
+    <div class="auth-card">
+      <div class="auth-logo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="4" y1="9" x2="20" y2="9"/><line x1="4" y1="15" x2="20" y2="15"/><line x1="10" y1="3" x2="8" y2="21"/><line x1="16" y1="3" x2="14" y2="21"/></svg></div>
+      <div class="auth-title">Trailing</div>
+      <div class="auth-subtitle">Connect to your audit trail</div>
+      <form id="auth-form" autocomplete="off">
+        <input class="auth-input" id="auth-key-input" type="password" placeholder="Enter API key" autocomplete="off" spellcheck="false" required>
+        <div class="auth-error" id="auth-error"></div>
+        <button class="auth-btn" type="submit" id="auth-submit">Connect</button>
+      </form>
+      <div class="auth-help">Enter your Trailing API key. Set via <code>TRAILING_API_KEY</code> env var on your server.</div>
+    </div>
+  </div>
+
+  <aside class="sidebar">
+    <div class="s-logo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="4" y1="9" x2="20" y2="9"/><line x1="4" y1="15" x2="20" y2="15"/><line x1="10" y1="3" x2="8" y2="21"/><line x1="16" y1="3" x2="14" y2="21"/></svg></div>
+    <button class="s-btn active" data-view="dashboard"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25"/></svg><span class="tip">Overview</span></button>
+    <button class="s-btn" data-view="monitoring"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 12h16.5m-16.5 3.75h16.5M3.75 19.5h16.5M5.625 4.5h12.75a1.875 1.875 0 0 1 0 3.75H5.625a1.875 1.875 0 0 1 0-3.75Z"/></svg><span class="tip">Monitoring</span></button>
+    <button class="s-btn" data-view="requests"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75m-3-7.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285Z"/></svg><span class="tip">Oversight</span></button>
+    <button class="s-btn" data-view="policies"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6a7.5 7.5 0 1 0 7.5 7.5h-7.5V6Z"/><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 10.5H21A7.5 7.5 0 0 0 13.5 3v7.5Z"/></svg><span class="tip">Compliance</span></button>
+    <button class="s-btn" data-view="chain"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13.19 8.688a4.5 4.5 0 0 1 1.242 7.244l-4.5 4.5a4.5 4.5 0 0 1-6.364-6.364l1.757-1.757m13.35-.622 1.757-1.757a4.5 4.5 0 0 0-6.364-6.364l-4.5 4.5a4.5 4.5 0 0 0 1.242 7.244"/></svg><span class="tip">Hash Chain</span></button>
+    <div class="s-gap"></div>
+    <button class="s-btn" data-action="export-json"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3"/></svg><span class="tip">Export JSON</span></button>
+    <button class="s-btn" data-action="export-pdf"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z"/></svg><span class="tip">Export PDF</span></button>
+  </aside>
+
+  <div class="main">
+    <div class="topbar">
+      <h1 class="page-title" id="page-title">Compliance Audit Dashboard</h1>
+      <div class="topbar-r">
+        <button class="btn" data-range="today" id="btn-today">Today</button>
+        <button class="btn" data-range="7d" id="btn-7d">7D</button>
+        <button class="btn active" data-range="30d" id="btn-30d">30D</button>
+        <button class="btn-disconnect" id="btn-disconnect" title="Disconnect API key">Disconnect</button>
+      </div>
+    </div>
+    <div class="content">
+
+      <!-- === OVERVIEW (like Frontegg main dashboard) === -->
+      <div class="view active" id="view-dashboard">
+        <div class="cards">
+          <div class="card"><div class="card-top"><span class="card-title">Compliance Score</span></div><div class="card-num" id="d-score">--</div><div class="card-sub" id="d-score-sub">EU AI Act</div></div>
+          <div class="card"><div class="card-top"><span class="card-title">Chain Integrity</span></div><div class="card-num" id="d-chain">--</div><div class="card-sub" id="d-chain-sub">Pending</div></div>
+          <div class="card"><div class="card-top"><span class="card-title">Total Actions</span></div><div class="card-num" id="d-actions">0</div><div class="card-sub" id="d-actions-sub">No actions yet</div></div>
+          <div class="card"><div class="card-top"><span class="card-title">Oversight Events</span></div><div class="card-num" id="d-oversight">0</div><div class="card-sub" id="d-oversight-sub">No interventions</div></div>
+        </div>
+        <div class="cards cards-3">
+          <div class="card"><div class="card-top"><span class="card-title">Top Active Agents</span><a class="card-link" data-view="monitoring" data-tab="logs">View all</a></div><div id="d-agents-list" class="card-empty">No recent activity</div></div>
+          <div class="card"><div class="card-top"><span class="card-title">Pending Oversight</span><a class="card-link" data-view="requests">View all</a></div><div id="d-pending" class="card-empty">You're all caught up</div></div>
+          <div class="card"><div class="card-top"><span class="card-title">Recent Sessions</span><a class="card-link" data-view="monitoring" data-tab="logs">View all</a></div><div id="d-sessions-list" class="card-empty">No recent activity</div></div>
+        </div>
+      </div>
+
+      <!-- === MONITORING (like Frontegg monitoring/logs) === -->
+      <div class="view" id="view-monitoring">
+        <div class="tabs"><button class="tab active" data-tab="logs">Logs</button><button class="tab" data-tab="stream">Stream</button></div>
+        <div class="tab-pane active" data-tab-pane="logs">
+          <div class="filter-row">
+            <div class="filter-group"><label>Agent</label><input class="fi" id="f-agent" placeholder="All"></div>
+            <div class="filter-group"><label>Type</label><select class="fs" id="f-type"><option value="">All</option><option value="tool">ToolCall</option><option value="write">SystemWrite</option><option value="access">DataAccess</option></select></div>
+            <div class="filter-group"><label>Session</label><input class="fi" id="f-session" placeholder="All"></div>
+            <div class="filter-group"><label>Date and time</label><select class="fs" id="f-date-range"><option value="today">Today</option><option value="7d">Last 7 days</option><option value="30d">Last 30 days</option></select></div>
+          </div>
+          <div class="tcard">
+            <table><thead><tr><th>Log</th><th>Date &amp; time</th><th>Agent</th><th>Type</th><th>Session</th><th>Hash</th></tr></thead><tbody id="l-tbody"></tbody></table>
+          </div>
+        </div>
+        <div class="tab-pane" data-tab-pane="stream">
+          <div class="tcard">
+            <div class="tcard-top"><span class="tcard-title">Live Event Stream</span><span class="tcard-meta" id="stream-meta">Waiting for connection</span></div>
+            <ul class="stream-list" id="stream-list"></ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- === REQUESTS/OVERSIGHT (like Frontegg requests page) === -->
+      <div class="view" id="view-requests">
+        <div class="tcard">
+          <div class="tcard-top"><span class="tcard-title">Oversight Events</span><span class="tcard-meta" id="ov-count">0 events</span></div>
+          <ul class="tl" id="ov-tl"></ul>
+        </div>
+      </div>
+
+      <!-- === POLICIES/COMPLIANCE === -->
+      <div class="view" id="view-policies">
+        <div class="tabs">
+          <button class="tab active" data-policy-tab="frameworks">Frameworks</button>
+          <button class="tab" data-policy-tab="retention">Retention</button>
+        </div>
+        <div class="tab-pane active" data-policy-pane="frameworks">
+          <div class="tabs">
+            <button class="tab active" data-fw="euaiact">EU AI Act</button>
+            <button class="tab" data-fw="hipaa">HIPAA</button>
+            <button class="tab" data-fw="nist">NIST AI RMF</button>
+            <button class="tab" data-fw="sr117">SR 11-7</button>
+            <button class="tab" data-fw="fda21cfr11">FDA 21 CFR 11</button>
+          </div>
+          <div class="tcard">
+            <div class="tcard-top"><span class="tcard-title" id="fw-title">EU AI Act</span><span class="tcard-meta">Controls</span></div>
+            <ul class="ctrl" id="fw-ctrl"></ul>
+          </div>
+        </div>
+        <div class="tab-pane" data-policy-pane="retention">
+          <div class="cards cards-3">
+            <div class="card"><div class="card-top"><span class="card-title">Effective Retention</span></div><div class="card-num" id="r-days">--</div><div class="card-sub" id="r-days-sub">Waiting for policy data</div></div>
+            <div class="card"><div class="card-top"><span class="card-title">Active Legal Holds</span></div><div class="card-num" id="r-holds">--</div><div class="card-sub" id="r-holds-sub">Waiting for hold data</div></div>
+            <div class="card"><div class="card-top"><span class="card-title">Tracked Records</span></div><div class="card-num" id="r-records">--</div><div class="card-sub" id="r-records-sub">Waiting for storage data</div></div>
+          </div>
+          <div class="stack">
+            <div class="tcard">
+              <div class="tcard-top"><span class="tcard-title">Retention Policy</span><span class="tcard-meta">Effective controls</span></div>
+              <ul class="ctrl" id="retention-policy-list"></ul>
+            </div>
+            <div class="tcard">
+              <div class="tcard-top"><span class="tcard-title">Active Legal Holds</span><span class="tcard-meta" id="retention-holds-meta">0 active</span></div>
+              <table><thead><tr><th>Matter</th><th>Scope</th><th>Created</th><th>Reason</th></tr></thead><tbody id="retention-holds-body"></tbody></table>
+            </div>
+            <div class="tcard">
+              <div class="tcard-top"><span class="tcard-title">Data Age Distribution</span><span class="tcard-meta" id="retention-age-meta">0 records</span></div>
+              <table><thead><tr><th>Age Bracket</th><th>Records</th><th>Oldest</th><th>Newest</th></tr></thead><tbody id="retention-age-body"></tbody></table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- === HASH CHAIN === -->
+      <div class="view" id="view-chain">
+        <div class="tcard"><ul class="ch" id="ch-list"></ul></div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="toast" id="toast"><span class="toast-dot"></span><span id="toast-msg">Connection lost</span></div>
+
+  <script>
+    /* === AUTH === */
+    const AUTH_STORAGE_KEY = 'trailing_api_key';
+
+    function getApiKey() {
+      return localStorage.getItem(AUTH_STORAGE_KEY) || '';
+    }
+
+    function setApiKey(key) {
+      localStorage.setItem(AUTH_STORAGE_KEY, key);
+    }
+
+    function clearApiKey() {
+      localStorage.removeItem(AUTH_STORAGE_KEY);
+    }
+
+    function showAuthModal(message) {
+      document.getElementById('auth-overlay').classList.remove('hidden');
+      const errorEl = document.getElementById('auth-error');
+      errorEl.textContent = message || '';
+      document.getElementById('auth-key-input').value = '';
+      document.getElementById('auth-key-input').focus();
+    }
+
+    function hideAuthModal() {
+      document.getElementById('auth-overlay').classList.add('hidden');
+      document.getElementById('auth-error').textContent = '';
+    }
+
+    function authHeaders(extra) {
+      const key = getApiKey();
+      const headers = Object.assign({}, extra || {});
+      if (key) headers['Authorization'] = 'Bearer ' + key;
+      return headers;
+    }
+
+    async function authFetch(url, options) {
+      const opts = Object.assign({}, options || {});
+      opts.headers = authHeaders(opts.headers);
+      const response = await fetch(url, opts);
+      if (response.status === 401) {
+        clearApiKey();
+        showAuthModal('Session expired or invalid API key. Please reconnect.');
+        throw new Error('Unauthorized');
+      }
+      return response;
+    }
+
+    // Auth form handler
+    document.getElementById('auth-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const key = document.getElementById('auth-key-input').value.trim();
+      if (!key) {
+        document.getElementById('auth-error').textContent = 'API key is required.';
+        return;
+      }
+      setApiKey(key);
+      hideAuthModal();
+      refresh();
+    });
+
+    // Disconnect button
+    document.getElementById('btn-disconnect').addEventListener('click', function() {
+      clearApiKey();
+      if (streamSource) { streamSource.close(); streamSource = null; streamConnected = false; }
+      showAuthModal('');
+    });
+
+    // On load: check for stored key
+    if (!getApiKey()) {
+      showAuthModal('');
+    } else {
+      hideAuthModal();
+    }
+
+    const POLL = 5000;
+    const EMPTY_ACTIONS_MESSAGE =
+      'No actions recorded yet. Start ingesting agent traces with `pip install trailing`';
+    const EMPTY_CHAIN_MESSAGE =
+      'Chain integrity will be verified once actions are ingested';
+    const EMPTY_OVERSIGHT_MESSAGE = 'No oversight events recorded';
+    const DEFAULT_FRAMEWORK_KEY = 'euaiact';
+    const FRAMEWORKS = {
+      euaiact: { apiId: 'eu-ai-act', name: 'EU AI Act' },
+      hipaa: { apiId: 'hipaa', name: 'HIPAA' },
+      nist: { apiId: 'nist-ai-rmf', name: 'NIST AI RMF' },
+      sr117: { apiId: 'sr-11-7', name: 'SR 11-7' },
+      fda21cfr11: { apiId: 'fda-21-cfr-part-11', name: 'FDA 21 CFR 11' },
+    };
+    const state = {
+      actions: [],
+      oversight: [],
+      integrity: null,
+      compliance: {},
+      retention: null,
+      expanded: null,
+      fw: 'euaiact',
+    };
+    state.range = '30d';
+
+    const $ = id => document.getElementById(id);
+    const titles = {
+      dashboard: 'Compliance Audit Dashboard',
+      monitoring: 'Monitoring',
+      requests: 'Oversight',
+      policies: 'Compliance',
+      chain: 'Hash Chain',
+    };
+
+    let currentView = 'dashboard';
+    let monitoringTab = 'logs';
+    let policyTab = 'frameworks';
+    let oversightCache = [];
+    let streamItems = [];
+    let streamSource = null;
+    let streamConnected = false;
+    let lastSync = Date.now();
+    let refreshToken = 0;
+
+    function currentFramework() {
+      return FRAMEWORKS[state.fw] || FRAMEWORKS[DEFAULT_FRAMEWORK_KEY];
+    }
+
+    function fmt(t) {
+      const d = new Date(t);
+      if (isNaN(d)) return t || '--';
+      const p = n => String(n).padStart(2, '0');
+      return p(d.getHours()) + ':' + p(d.getMinutes()) + ':' + p(d.getSeconds());
+    }
+
+    function fmtF(t) {
+      const d = new Date(t);
+      if (isNaN(d)) return t || '--';
+      const p = n => String(n).padStart(2, '0');
+      return (
+        d.getFullYear() +
+        '-' +
+        p(d.getMonth() + 1) +
+        '-' +
+        p(d.getDate()) +
+        ' ' +
+        p(d.getHours()) +
+        ':' +
+        p(d.getMinutes())
+      );
+    }
+
+    function trunc(h) {
+      return h ? h.slice(0, 12) : '--';
+    }
+
+    function esc(v) {
+      return String(v)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    function normToken(v) {
+      return String(v || '')
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '');
+    }
+
+    function humanize(v) {
+      const text = String(v || '').replace(/[_-]+/g, ' ').trim();
+      return text ? text.replace(/\b\w/g, c => c.toUpperCase()) : '--';
+    }
+
+    function actionType(action) {
+      return (
+        action?.action_type ||
+        action?.type ||
+        action?.kind ||
+        action?.payload?.action?.type ||
+        ''
+      );
+    }
+
+    function actionLabel(action) {
+      return (
+        action?.tool_name ||
+        action?.payload?.action?.tool_name ||
+        action?.target ||
+        actionType(action) ||
+        '--'
+      );
+    }
+
+    function pc(t) {
+      const s = normToken(t);
+      if (s.includes('tool')) return 'p-tool';
+      if (s.includes('write') || s.includes('system')) return 'p-write';
+      if (s.includes('access') || s.includes('data')) return 'p-access';
+      if (
+        s.includes('oversight') ||
+        s.includes('approval') ||
+        s.includes('override') ||
+        s.includes('kill')
+      ) {
+        return 'p-over';
+      }
+      return 'p-def';
+    }
+
+    function ovT(event) {
+      const payload = event.payload || {};
+      const kind = normToken(
+        payload.event_type || payload.kind || event.note || event.severity || ''
+      );
+      if (kind.includes('override')) return 'override';
+      if (kind.includes('kill')) return 'kill';
+      return 'approval';
+    }
+
+    function buildDateWindow(range = state.range) {
+      const now = new Date();
+      const to = new Date(now);
+      const from = new Date(now);
+      if (range === 'today') {
+        from.setHours(0, 0, 0, 0);
+      } else if (range === '7d') {
+        from.setTime(from.getTime() - 7 * 24 * 60 * 60 * 1000);
+      } else {
+        from.setTime(from.getTime() - 30 * 24 * 60 * 60 * 1000);
+      }
+      return { from: from.toISOString(), to: to.toISOString() };
+    }
+
+    function withinWindow(timestamp, window = buildDateWindow()) {
+      const time = Date.parse(timestamp || '');
+      if (Number.isNaN(time)) return false;
+      return time >= Date.parse(window.from) && time <= Date.parse(window.to);
+    }
+
+    function filterByWindow(items, window = buildDateWindow()) {
+      return items.filter(item => withinWindow(item.timestamp, window));
+    }
+
+    function upsertById(items, item, limit = 100) {
+      const id = String(item?.id || '');
+      return [item, ...items.filter(existing => String(existing?.id || '') !== id)].slice(
+        0,
+        limit
+      );
+    }
+
+    function updateRangeControls() {
+      document.querySelectorAll('.btn[data-range]').forEach(button => {
+        button.classList.toggle('active', button.dataset.range === state.range);
+      });
+      const select = $('f-date-range');
+      if (select) select.value = state.range;
+    }
+
+    function updateFrameworkTabs() {
+      document.querySelectorAll('.tab[data-fw]').forEach(button => {
+        button.classList.toggle('active', button.dataset.fw === state.fw);
+      });
+    }
+
+    function updatePolicyTabs() {
+      document.querySelectorAll('.tab[data-policy-tab]').forEach(button => {
+        button.classList.toggle('active', button.dataset.policyTab === policyTab);
+      });
+      document.querySelectorAll('.tab-pane[data-policy-pane]').forEach(pane => {
+        pane.classList.toggle('active', pane.dataset.policyPane === policyTab);
+      });
+    }
+
+    function setMonitoringTab(tab) {
+      monitoringTab = tab === 'stream' ? 'stream' : 'logs';
+      document.querySelectorAll('.tab[data-tab]').forEach(button => {
+        button.classList.toggle('active', button.dataset.tab === monitoringTab);
+      });
+      document.querySelectorAll('.tab-pane[data-tab-pane]').forEach(pane => {
+        pane.classList.toggle('active', pane.dataset.tabPane === monitoringTab);
+      });
+      if (monitoringTab === 'stream') ensureStreamConnection();
+      renderStream();
+    }
+
+    function activateView(view, options = {}) {
+      currentView = view;
+      document.querySelectorAll('.s-btn[data-view]').forEach(button => {
+        button.classList.toggle('active', button.dataset.view === view);
+      });
+      document.querySelectorAll('.view').forEach(panel => panel.classList.remove('active'));
+      const panel = $('view-' + view);
+      if (panel) panel.classList.add('active');
+      $('page-title').textContent = titles[view] || '';
+      if (view === 'monitoring') setMonitoringTab(options.tab || monitoringTab);
+    }
+
+    function buildActionParams(window) {
+      const params = new URLSearchParams();
+      params.set('from', window.from);
+      params.set('to', window.to);
+      return params;
+    }
+
+    function numOrNull(value) {
+      const parsed = Number(value);
+      return Number.isFinite(parsed) ? parsed : null;
+    }
+
+    function normalizeComplianceStatus(value) {
+      const status = normToken(value);
+      if (
+        status === 'pass' ||
+        status === 'passed' ||
+        status === 'passing' ||
+        status === 'ok' ||
+        status === 'success' ||
+        status === 'met' ||
+        status === 'compliant'
+      ) {
+        return 'pass';
+      }
+      if (
+        status === 'warn' ||
+        status === 'warning' ||
+        status === 'warnings' ||
+        status === 'review' ||
+        status === 'reviewing' ||
+        status === 'needsreview' ||
+        status === 'partial' ||
+        status === 'pending'
+      ) {
+        return 'warn';
+      }
+      if (
+        status === 'fail' ||
+        status === 'failed' ||
+        status === 'failing' ||
+        status === 'gap' ||
+        status === 'missing' ||
+        status === 'error' ||
+        status === 'noncompliant'
+      ) {
+        return 'fail';
+      }
+      return null;
+    }
+
+    function normalizeComplianceControl(control, fallbackStatus) {
+      if (!control || typeof control !== 'object') return null;
+      const status =
+        normalizeComplianceStatus(
+          control.status || control.result || control.outcome || control.state
+        ) || fallbackStatus;
+      if (!status) return null;
+      return {
+        id: control.id || control.control_id || control.name || control.article || 'Control',
+        article: control.article || control.reference || '',
+        description:
+          control.requirement ||
+          control.description ||
+          control.summary ||
+          control.detail ||
+          control.reason ||
+          '',
+        status,
+      };
+    }
+
+    function normalizeComplianceReport(report) {
+      if (!report || typeof report !== 'object') return null;
+
+      const controls = [];
+      if (Array.isArray(report.controls)) {
+        report.controls.forEach(control => {
+          const normalized = normalizeComplianceControl(control, null);
+          if (normalized) controls.push(normalized);
+        });
+      }
+
+      if (!controls.length) {
+        (report.controls_met || []).forEach(control => {
+          const normalized = normalizeComplianceControl(control, 'pass');
+          if (normalized) controls.push(normalized);
+        });
+        (report.controls_gaps || []).forEach(control => {
+          const normalized = normalizeComplianceControl(control, 'fail');
+          if (normalized) controls.push(normalized);
+        });
+      }
+
+      let controlsPassed = numOrNull(report.controls_passed);
+      let controlsTotal = numOrNull(report.controls_total);
+
+      if (controlsPassed === null && Array.isArray(report.controls_met)) {
+        controlsPassed = report.controls_met.length;
+      }
+      if (controlsTotal === null) {
+        if (Array.isArray(report.controls_met) || Array.isArray(report.controls_gaps)) {
+          controlsTotal = (report.controls_met || []).length + (report.controls_gaps || []).length;
+        } else if (controls.length) {
+          controlsTotal = controls.length;
+        }
+      }
+      if (controlsPassed === null && controls.length) {
+        controlsPassed = controls.filter(control => control.status === 'pass').length;
+      }
+
+      return {
+        framework: report.framework || '',
+        score: numOrNull(report.score),
+        controlsPassed,
+        controlsTotal,
+        controls,
+        totalActions: numOrNull(report.total_actions),
+        oversightEvents: numOrNull(report.oversight_events),
+      };
+    }
+
+    function normalizeRetentionSummary(summary) {
+      if (!summary || typeof summary !== 'object') return null;
+      return {
+        orgId: summary.org_id || '',
+        effectiveRetentionDays: Number(summary.effective_retention_days) || 0,
+        policySource: summary.policy_source || 'default',
+        purgeCutoff: summary.purge_cutoff || '',
+        purgeBlocked: Boolean(summary.purge_blocked),
+        storagePolicy: summary.storage_policy || null,
+        organizationPolicy: summary.organization_policy || null,
+        activeLegalHolds: Array.isArray(summary.active_legal_holds)
+          ? summary.active_legal_holds
+          : [],
+        ageDistribution: Array.isArray(summary.age_distribution) ? summary.age_distribution : [],
+        totalRecords: Number(summary.total_records) || 0,
+        oldestRecordAt: summary.oldest_record_at || '',
+        newestRecordAt: summary.newest_record_at || '',
+      };
+    }
+
+    function complianceBadgeClass(status) {
+      return 'cs-' + (status === 'pass' ? 'p' : status === 'fail' ? 'f' : 'w');
+    }
+
+    function complianceBadgeLabel(status) {
+      return status === 'pass' ? 'Pass' : status === 'fail' ? 'Fail' : 'Warn';
+    }
+
+    function scoreStatus(score) {
+      if (score === null) return 'warn';
+      if (score >= 85) return 'pass';
+      if (score >= 60) return 'warn';
+      return 'fail';
+    }
+
+    function renderDash() {
+      const framework = currentFramework();
+      const report = state.compliance[framework.apiId];
+      const actionCount = state.actions.length;
+      const oversightCount = state.oversight.length;
+      const latestAction = [...state.actions].sort(
+        (a, b) => new Date(b.timestamp) - new Date(a.timestamp)
+      )[0];
+      const score = report ? report.score : null;
+      const valid = actionCount > 0 && state.integrity ? Boolean(state.integrity.valid) : null;
+      const controlSummary =
+        report &&
+        report.controlsPassed !== null &&
+        report.controlsTotal !== null
+          ? report.controlsPassed + ' / ' + report.controlsTotal + ' controls passed'
+          : report && report.totalActions !== null
+            ? report.totalActions + ' actions analyzed'
+            : 'Compliance data loaded';
+
+      $('d-score').textContent = score !== null ? score + '%' : '--';
+      $('d-score').className =
+        'card-num' +
+        (score !== null ? (score >= 85 ? ' c-g' : score >= 60 ? ' c-a' : ' c-r') : '');
+      $('d-score-sub').textContent = report
+        ? framework.name + ' - ' + controlSummary
+        : framework.name;
+
+      $('d-chain').textContent = valid !== null ? (valid ? 'Valid' : 'Broken') : '--';
+      $('d-chain').className =
+        'card-num' + (valid !== null ? (valid ? ' c-g' : ' c-r') : '');
+      $('d-chain-sub').textContent =
+        valid !== null
+          ? (state.integrity.checked_entries || 0) + ' entries verified'
+          : EMPTY_CHAIN_MESSAGE;
+
+      $('d-actions').textContent = actionCount;
+      $('d-actions-sub').textContent =
+        actionCount > 0
+          ? 'Last: ' + fmtF(latestAction?.timestamp)
+          : EMPTY_ACTIONS_MESSAGE;
+
+      $('d-oversight').textContent = oversightCount;
+      $('d-oversight-sub').textContent =
+        oversightCount > 0
+          ? oversightCount + ' event' + (oversightCount === 1 ? '' : 's')
+          : EMPTY_OVERSIGHT_MESSAGE;
+
+      const agentCounts = {};
+      state.actions.forEach(action => {
+        if (!action.agent) return;
+        agentCounts[action.agent] = (agentCounts[action.agent] || 0) + 1;
+      });
+      const topAgents = Object.entries(agentCounts)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 3);
+      $('d-agents-list').innerHTML = topAgents.length
+        ? topAgents
+            .map(
+              ([name, count]) =>
+                '<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.04);font-size:13px"><span style="color:var(--text)">' +
+                esc(name) +
+                '</span><span style="color:var(--text-3)">' +
+                count +
+                ' actions</span></div>'
+            )
+            .join('')
+        : '<div class="card-empty">' + esc(EMPTY_ACTIONS_MESSAGE) + '</div>';
+
+      const sessions = [...new Set(state.actions.map(action => action.session_id).filter(Boolean))].slice(0, 3);
+      $('d-sessions-list').innerHTML = sessions.length
+        ? sessions
+            .map(
+              session =>
+                '<div style="padding:6px 0;border-bottom:1px solid rgba(255,255,255,.04);font-size:13px;color:var(--text)">' +
+                esc(session) +
+                '</div>'
+            )
+            .join('')
+        : '<div class="card-empty">' + esc(EMPTY_ACTIONS_MESSAGE) + '</div>';
+
+      $('d-pending').innerHTML =
+        oversightCount > 0
+          ? '<div style="font-size:13px;color:var(--text)">' +
+            oversightCount +
+            ' event' +
+            (oversightCount === 1 ? '' : 's') +
+            ' to review</div>'
+          : '<div class="card-empty">' + esc(EMPTY_OVERSIGHT_MESSAGE) + '</div>';
+    }
+
+    function renderLedger() {
+      const agentFilter = $('f-agent').value.toLowerCase();
+      const typeFilter = normToken($('f-type').value);
+      const sessionFilter = $('f-session').value.toLowerCase();
+      let rows = [...state.actions].sort(
+        (a, b) => new Date(b.timestamp) - new Date(a.timestamp)
+      );
+      if (agentFilter) {
+        rows = rows.filter(row =>
+          String(row.agent || '').toLowerCase().includes(agentFilter)
+        );
+      }
+      if (typeFilter) {
+        rows = rows.filter(row =>
+          normToken(actionType(row)).includes(typeFilter)
+        );
+      }
+      if (sessionFilter) {
+        rows = rows.filter(row =>
+          String(row.session_id || '').toLowerCase().includes(sessionFilter)
+        );
+      }
+      if (!rows.length) {
+        $('l-tbody').innerHTML =
+          '<tr><td colspan="6" class="empty">' + esc(EMPTY_ACTIONS_MESSAGE) + '</td></tr>';
+        return;
+      }
+
+      $('l-tbody').innerHTML = rows
+        .map(row => {
+          const expanded = state.expanded === String(row.id);
+          const type = actionType(row) || row.kind || 'event';
+          let html =
+            '<tr data-id="' +
+            esc(row.id) +
+            '"' +
+            (expanded ? ' style="background:var(--hover)"' : '') +
+            '><td>' +
+            esc(actionLabel(row)) +
+            '</td><td class="c-time">' +
+            esc(fmtF(row.timestamp)) +
+            '</td><td class="c-agent">' +
+            esc(row.agent || '--') +
+            '</td><td><span class="pill ' +
+            pc(type) +
+            '">' +
+            esc(humanize(type)) +
+            '</span></td><td>' +
+            esc(row.session_id || '--') +
+            '</td><td class="c-hash" data-hash="' +
+            esc(row.hash || '') +
+            '">' +
+            esc(trunc(row.hash)) +
+            '</td></tr>';
+          if (expanded) {
+            html +=
+              '<tr class="expand-row"><td colspan="6"><div class="expand-code">' +
+              esc(JSON.stringify(row.payload || row, null, 2)) +
+              '</div></td></tr>';
+          }
+          return html;
+        })
+        .join('');
+    }
+
+    function renderOv() {
+      const items = [...state.oversight].sort(
+        (a, b) => new Date(b.timestamp) - new Date(a.timestamp)
+      );
+      $('ov-count').textContent = items.length + ' events';
+      if (!items.length) {
+        $('ov-tl').innerHTML =
+          '<li style="padding:24px;color:var(--text-3)">' +
+          esc(EMPTY_OVERSIGHT_MESSAGE) +
+          '</li>';
+        return;
+      }
+      $('ov-tl').innerHTML = items
+        .map(event => {
+          const payload = event.payload || {};
+          const type = ovT(event);
+          const label = payload.event_type || event.severity || 'oversight';
+          const scope =
+            event.note ||
+            payload.scope ||
+            payload.message ||
+            payload.description ||
+            'Oversight event';
+          const meta = [payload.approver, event.framework, event.session_id, fmtF(event.timestamp)]
+            .filter(Boolean)
+            .join(' - ');
+          return (
+            '<li class="tl-item t-' +
+            type +
+            '"><div class="tl-type t-' +
+            type +
+            '">' +
+            esc(humanize(label)) +
+            '</div><div class="tl-scope">' +
+            esc(scope) +
+            '</div><div class="tl-meta">' +
+            esc(meta || fmtF(event.timestamp)) +
+            '</div></li>'
+          );
+        })
+        .join('');
+    }
+
+    function renderCh() {
+      const sorted = [...state.actions]
+        .sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp))
+        .slice(-15);
+      if (!sorted.length) {
+        $('ch-list').innerHTML =
+          '<li style="padding:24px;color:var(--text-3)">' +
+          esc(EMPTY_CHAIN_MESSAGE) +
+          '</li>';
+        return;
+      }
+      const valid = state.integrity ? state.integrity.valid : true;
+      $('ch-list').innerHTML = sorted
+        .map((action, index) => {
+          const genesis = index === 0 && !action.previous_hash;
+          return (
+            '<li class="ch-n' +
+            (genesis ? ' ch-gen' : '') +
+            (!valid ? ' ch-bad' : '') +
+            '"><span class="ch-hash">' +
+            esc(trunc(action.hash)) +
+            '</span><span class="ch-label">' +
+            esc(actionLabel(action)) +
+            '</span>' +
+            (genesis ? '<span class="ch-tag">Genesis</span>' : '') +
+            '</li>'
+          );
+        })
+        .join('');
+    }
+
+    function renderComp() {
+      const framework = currentFramework();
+      const report = state.compliance[framework.apiId];
+      $('fw-title').textContent = framework.name;
+      if (!report) {
+        $('fw-ctrl').innerHTML =
+          '<li class="ctrl-item"><div><div class="ctrl-name">No compliance report available</div><div class="ctrl-desc">Refresh the dashboard after audit data is available for this framework.</div></div></li>';
+        return;
+      }
+
+      if (report.controls.length) {
+        $('fw-ctrl').innerHTML = report.controls
+          .map(control => {
+            const description = [control.article, control.description]
+              .filter(Boolean)
+              .join(' - ');
+            return (
+              '<li class="ctrl-item"><span class="ctrl-s ' +
+              complianceBadgeClass(control.status) +
+              '">' +
+              complianceBadgeLabel(control.status) +
+              '</span><div><div class="ctrl-name">' +
+              esc(control.id) +
+              '</div><div class="ctrl-desc">' +
+              esc(description || 'No detail provided by the server.') +
+              '</div></div></li>'
+            );
+          })
+          .join('');
+        return;
+      }
+
+      const score = report.score;
+      const summary =
+        report.controlsPassed !== null && report.controlsTotal !== null
+          ? report.controlsPassed + ' of ' + report.controlsTotal + ' controls passed'
+          : 'Per-control detail was not provided by the backend.';
+      $('fw-ctrl').innerHTML =
+        '<li class="ctrl-item"><span class="ctrl-s ' +
+        complianceBadgeClass(scoreStatus(score)) +
+        '">' +
+        esc(score !== null ? score + '%' : 'N/A') +
+        '</span><div><div class="ctrl-name">Overall compliance</div><div class="ctrl-desc">' +
+        esc(summary) +
+        '</div></div></li>';
+    }
+
+    function renderRetention() {
+      const retention = state.retention;
+      if (!retention) {
+        $('r-days').textContent = '--';
+        $('r-days').className = 'card-num';
+        $('r-days-sub').textContent = 'Retention summary endpoint unavailable';
+        $('r-holds').textContent = '--';
+        $('r-holds').className = 'card-num';
+        $('r-holds-sub').textContent = 'Legal hold data unavailable';
+        $('r-records').textContent = '--';
+        $('r-records').className = 'card-num';
+        $('r-records-sub').textContent = 'Age distribution unavailable';
+        $('retention-policy-list').innerHTML =
+          '<li class="ctrl-item"><div><div class="ctrl-name">Retention controls unavailable</div><div class="ctrl-desc">This server does not expose retention summary data yet. Review <a class="card-link" href="/v1/openapi.yml" target="_blank" rel="noreferrer">the API docs</a> for org settings and retention fields.</div></div></li>';
+        $('retention-holds-meta').textContent = 'Unavailable';
+        $('retention-holds-body').innerHTML =
+          '<tr><td colspan="4" class="empty">Retention summary endpoint unavailable</td></tr>';
+        $('retention-age-meta').textContent = 'Unavailable';
+        $('retention-age-body').innerHTML =
+          '<tr><td colspan="4" class="empty">Retention summary endpoint unavailable</td></tr>';
+        return;
+      }
+
+      const holds = retention.activeLegalHolds;
+      const orgPolicy = retention.organizationPolicy;
+      $('r-days').textContent = retention.effectiveRetentionDays + 'd';
+      $('r-days').className = 'card-num';
+      $('r-days-sub').textContent =
+        (retention.policySource === 'organization'
+          ? 'Organization override'
+          : 'Default storage policy') +
+        ' · Purge cutoff ' +
+        fmtF(retention.purgeCutoff);
+      $('r-holds').textContent = holds.length;
+      $('r-holds').className = 'card-num' + (holds.length ? ' c-r' : ' c-g');
+      $('r-holds-sub').textContent = holds.length
+        ? 'Purge is blocked until active holds are released'
+        : 'No active holds are blocking purge';
+      $('r-records').textContent = retention.totalRecords;
+      $('r-records').className = 'card-num';
+      $('r-records-sub').textContent = retention.totalRecords
+        ? 'Oldest record ' + fmtF(retention.oldestRecordAt)
+        : 'No retained records in this organization';
+
+      const policyItems = [
+        '<li class="ctrl-item"><div><div class="ctrl-name">Effective policy</div><div class="ctrl-desc">Records in ' +
+          esc(retention.orgId || 'this organization') +
+          ' are retained for at least ' +
+          esc(String(retention.effectiveRetentionDays)) +
+          ' days. Records older than ' +
+          esc(fmtF(retention.purgeCutoff)) +
+          ' are eligible for purge when no hold is active.</div></div></li>',
+        '<li class="ctrl-item"><div><div class="ctrl-name">Default storage policy</div><div class="ctrl-desc">Minimum retention is ' +
+          esc(String(retention.storagePolicy?.min_retention_days ?? 0)) +
+          ' days. Purge execution is ' +
+          esc(retention.storagePolicy?.allow_purge ? 'enabled' : 'disabled') +
+          ' at the storage control layer.</div></div></li>',
+      ];
+      policyItems.push(
+        orgPolicy
+          ? '<li class="ctrl-item"><div><div class="ctrl-name">Organization override</div><div class="ctrl-desc">Updated ' +
+            esc(fmtF(orgPolicy.updated_at)) +
+            '. min_retention_days=' +
+            esc(
+              orgPolicy.min_retention_days === null || orgPolicy.min_retention_days === undefined
+                ? '--'
+                : String(orgPolicy.min_retention_days)
+            ) +
+            ', legal_hold=' +
+            esc(orgPolicy.legal_hold ? 'true' : 'false') +
+            '.</div></div></li>'
+          : '<li class="ctrl-item"><div><div class="ctrl-name">Organization override</div><div class="ctrl-desc">No organization-specific retention override is configured. This dashboard is showing the default storage policy.</div></div></li>'
+      );
+      if (holds.length) {
+        policyItems.push(
+          '<li class="ctrl-item"><div><div class="ctrl-name">Purge status</div><div class="ctrl-desc">' +
+            esc(String(holds.length)) +
+            ' active legal hold' +
+            (holds.length === 1 ? '' : 's') +
+            ' currently prevent purge for this organization.</div></div></li>'
+        );
+      }
+      $('retention-policy-list').innerHTML = policyItems.join('');
+
+      $('retention-holds-meta').textContent =
+        holds.length + ' active hold' + (holds.length === 1 ? '' : 's');
+      $('retention-holds-body').innerHTML = holds.length
+        ? holds
+            .map(hold => {
+              return (
+                '<tr><td>' +
+                esc(hold.matter || hold.id) +
+                '</td><td>' +
+                esc(hold.org_id ? 'Org' : 'Global') +
+                '</td><td class="c-time">' +
+                esc(fmtF(hold.created_at)) +
+                '</td><td>' +
+                esc(hold.reason || '--') +
+                '</td></tr>'
+              );
+            })
+            .join('')
+        : '<tr><td colspan="4" class="empty">No active legal holds</td></tr>';
+
+      $('retention-age-meta').textContent =
+        retention.totalRecords + ' record' + (retention.totalRecords === 1 ? '' : 's');
+      $('retention-age-body').innerHTML = retention.ageDistribution.length
+        ? retention.ageDistribution
+            .map(bucket => {
+              return (
+                '<tr><td>' +
+                esc(bucket.label || '--') +
+                '</td><td>' +
+                esc(String(Number(bucket.count) || 0)) +
+                '</td><td class="c-time">' +
+                esc(bucket.oldest_record_at ? fmtF(bucket.oldest_record_at) : '--') +
+                '</td><td class="c-time">' +
+                esc(bucket.newest_record_at ? fmtF(bucket.newest_record_at) : '--') +
+                '</td></tr>'
+              );
+            })
+            .join('')
+        : '<tr><td colspan="4" class="empty">No records available for age analysis</td></tr>';
+    }
+
+    function renderStream() {
+      $('stream-meta').textContent = streamSource
+        ? streamConnected
+          ? 'Connected to /v1/events'
+          : 'Reconnecting to /v1/events'
+        : 'Waiting for connection';
+      if (!streamItems.length) {
+        $('stream-list').innerHTML =
+          '<li class="stream-empty">Waiting for live events from /v1/events</li>';
+        return;
+      }
+      $('stream-list').innerHTML = streamItems
+        .map(item => {
+          const payload = item.payload;
+          const label =
+            item.kind === 'action'
+              ? actionLabel(payload)
+              : payload.note ||
+                payload.payload?.scope ||
+                payload.payload?.message ||
+                'Oversight event';
+          const meta =
+            item.kind === 'action'
+              ? [humanize(actionType(payload)), payload.agent, payload.session_id]
+                  .filter(Boolean)
+                  .join(' - ')
+              : [payload.severity, payload.framework, payload.session_id]
+                  .filter(Boolean)
+                  .map(humanize)
+                  .join(' - ');
+          return (
+            '<li class="stream-item"><span class="pill ' +
+            (item.kind === 'action' ? pc(actionType(payload)) : 'p-over') +
+            '">' +
+            esc(item.kind === 'action' ? humanize(actionType(payload)) : 'Oversight') +
+            '</span><div class="stream-body"><div class="stream-main">' +
+            esc(label) +
+            '</div><div class="stream-sub">' +
+            esc(meta || '--') +
+            '</div></div><span class="stream-time">' +
+            esc(fmt(payload.timestamp)) +
+            '</span></li>'
+          );
+        })
+        .join('');
+    }
+
+    function renderAll() {
+      renderDash();
+      renderLedger();
+      renderOv();
+      renderCh();
+      renderComp();
+      renderRetention();
+      renderStream();
+    }
+
+    function pushStreamItem(kind, payload) {
+      streamItems = upsertById(streamItems, { id: kind + ':' + payload.id, kind, payload }, 50);
+      renderStream();
+    }
+
+    function applyLiveEvent(kind, payload) {
+      if (kind === 'action') {
+        state.actions = upsertById(state.actions, payload);
+      } else {
+        oversightCache = upsertById(oversightCache, payload);
+        if (withinWindow(payload.timestamp)) {
+          state.oversight = upsertById(state.oversight, payload);
+        }
+      }
+      pushStreamItem(kind, payload);
+      renderAll();
+    }
+
+    function ensureStreamConnection() {
+      if (streamSource || !window.EventSource) {
+        renderStream();
+        return;
+      }
+      const key = getApiKey();
+      if (!key) { renderStream(); return; }
+      const evtUrl = new URL('/v1/events', globalThis.location.origin);
+      evtUrl.searchParams.set('token', key);
+      streamSource = new EventSource(evtUrl.toString());
+      streamSource.onopen = () => {
+        streamConnected = true;
+        renderStream();
+      };
+      streamSource.onerror = () => {
+        streamConnected = false;
+        renderStream();
+      };
+      streamSource.addEventListener('action', event => {
+        try {
+          applyLiveEvent('action', JSON.parse(event.data));
+        } catch (error) {
+          console.error(error);
+        }
+      });
+      streamSource.addEventListener('oversight', event => {
+        try {
+          applyLiveEvent('oversight', JSON.parse(event.data));
+        } catch (error) {
+          console.error(error);
+        }
+      });
+    }
+
+    function checkDesync() {
+      const gap = Date.now() - lastSync;
+      const toast = $('toast');
+      if (gap > 30000) {
+        toast.classList.add('show');
+        $('toast-msg').textContent = 'Desynced ' + Math.round(gap / 1000) + 's ago';
+      } else {
+        toast.classList.remove('show');
+      }
+    }
+
+    setInterval(checkDesync, 5000);
+
+    async function refresh() {
+      if (!getApiKey()) return;
+      const framework = currentFramework();
+      const dateWindow = buildDateWindow();
+      const token = ++refreshToken;
+      const actionUrl = new URL('/v1/actions', globalThis.location.origin);
+      const params = buildActionParams(dateWindow);
+      actionUrl.search = params.toString();
+      const complianceRequests = Object.values(FRAMEWORKS).map(currentFramework => {
+        const complianceUrl = new URL(
+          '/v1/compliance/' + encodeURIComponent(currentFramework.apiId),
+          globalThis.location.origin
+        );
+        complianceUrl.search = params.toString();
+        return authFetch(complianceUrl.toString())
+          .then(response => ({ framework: currentFramework, response }))
+          .catch(error => ({ framework: currentFramework, error }));
+      });
+      const retentionRequest = authFetch('/v1/retention/summary')
+        .then(response => ({ response }))
+        .catch(error => ({ error }));
+
+      try {
+        const [
+          actionsResponse,
+          integrityResponse,
+          exportResponse,
+          complianceResponses,
+          retentionResult,
+        ] =
+          await Promise.all([
+            authFetch(actionUrl.toString()),
+            authFetch('/v1/integrity'),
+            authFetch('/v1/export/json', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ framework: framework.apiId }),
+            }),
+            Promise.all(complianceRequests),
+            retentionRequest,
+          ]);
+
+        if (!actionsResponse.ok || !integrityResponse.ok) throw new Error('refresh failed');
+        if (token !== refreshToken) return;
+
+        const actionsPayload = await actionsResponse.json();
+        state.actions = Array.isArray(actionsPayload.actions)
+          ? actionsPayload.actions
+          : Array.isArray(actionsPayload)
+            ? actionsPayload
+            : [];
+        state.integrity = await integrityResponse.json();
+        const complianceState = {};
+        for (const result of complianceResponses) {
+          if (!result.response || !result.response.ok) continue;
+          complianceState[result.framework.apiId] = normalizeComplianceReport(
+            await result.response.json()
+          );
+        }
+        state.compliance = complianceState;
+        state.retention =
+          retentionResult.response && retentionResult.response.ok
+            ? normalizeRetentionSummary(await retentionResult.response.json())
+            : null;
+
+        if (exportResponse.ok) {
+          const exportPayload = await exportResponse.json();
+          oversightCache = Array.isArray(exportPayload.oversight_events)
+            ? exportPayload.oversight_events
+            : [];
+          state.oversight = filterByWindow(oversightCache, dateWindow);
+        } else {
+          oversightCache = [];
+          state.oversight = [];
+        }
+
+        lastSync = Date.now();
+        $('toast').classList.remove('show');
+        renderAll();
+      } catch (error) {
+        console.error(error);
+        renderAll();
+      }
+    }
+
+    async function doExport(kind) {
+      const framework = currentFramework();
+      try {
+        const response = await authFetch(
+          kind === 'json' ? '/v1/export/json' : '/v1/export/pdf',
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ framework: framework.apiId }),
+          }
+        );
+        if (!response.ok) throw new Error('export failed');
+        const blob =
+          kind === 'json'
+            ? new Blob([JSON.stringify(await response.json(), null, 2)], {
+                type: 'application/json',
+              })
+            : await response.blob();
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = 'trailing.' + (kind === 'json' ? 'json' : 'pdf');
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        URL.revokeObjectURL(url);
+      } catch (error) {
+        console.error(error);
+      }
+    }
+
+    function setRange(range) {
+      state.range = range;
+      state.expanded = null;
+      updateRangeControls();
+      refresh();
+    }
+
+    document.querySelectorAll('.s-btn[data-view]').forEach(button => {
+      button.addEventListener('click', () => {
+        activateView(button.dataset.view);
+      });
+    });
+
+    document.querySelectorAll('.s-btn[data-action]').forEach(button => {
+      button.addEventListener('click', () => {
+        if (button.dataset.action === 'export-json') doExport('json');
+        if (button.dataset.action === 'export-pdf') doExport('pdf');
+      });
+    });
+
+    document.querySelectorAll('.btn[data-range]').forEach(button => {
+      button.addEventListener('click', () => setRange(button.dataset.range));
+    });
+
+    document.querySelectorAll('.tab[data-tab]').forEach(button => {
+      button.addEventListener('click', () => {
+        setMonitoringTab(button.dataset.tab);
+      });
+    });
+
+    document.querySelectorAll('.tab[data-fw]').forEach(button => {
+      button.addEventListener('click', () => {
+        state.fw = FRAMEWORKS[button.dataset.fw] ? button.dataset.fw : DEFAULT_FRAMEWORK_KEY;
+        updateFrameworkTabs();
+        renderDash();
+        renderComp();
+      });
+    });
+
+    document.querySelectorAll('.tab[data-policy-tab]').forEach(button => {
+      button.addEventListener('click', () => {
+        policyTab = button.dataset.policyTab === 'retention' ? 'retention' : 'frameworks';
+        updatePolicyTabs();
+        if (policyTab === 'retention') {
+          renderRetention();
+        } else {
+          renderComp();
+        }
+      });
+    });
+
+    document.querySelectorAll('.card-link[data-view]').forEach(link => {
+      link.addEventListener('click', event => {
+        event.preventDefault();
+        activateView(link.dataset.view, { tab: link.dataset.tab });
+      });
+    });
+
+    $('f-agent').addEventListener('input', renderLedger);
+    $('f-type').addEventListener('change', renderLedger);
+    $('f-session').addEventListener('input', renderLedger);
+    $('f-date-range').addEventListener('change', event => {
+      setRange(event.target.value);
+    });
+
+    document.addEventListener('click', event => {
+      const hash = event.target.closest('.c-hash');
+      if (hash && hash.dataset.hash) {
+        if (navigator.clipboard) navigator.clipboard.writeText(hash.dataset.hash);
+        event.stopPropagation();
+        return;
+      }
+      const row = event.target.closest('tr[data-id]');
+      if (row) {
+        state.expanded = state.expanded === row.dataset.id ? null : row.dataset.id;
+        renderLedger();
+      }
+    });
+
+    activateView(currentView);
+    updateRangeControls();
+    updateFrameworkTabs();
+    updatePolicyTabs();
+    renderStream();
+    refresh();
+    setInterval(refresh, POLL);
+  </script>
+</body>
+</html>

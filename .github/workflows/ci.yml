@@ -1,0 +1,214 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Install Rust stable
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy
+
+      - name: Build
+        run: cargo build
+
+      - name: Test
+        run: cargo test
+
+      - name: Lint
+        run: cargo clippy -- -D warnings
+
+  python-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - run: cd sdk/python && pip install -e ".[dev]" && pytest tests/
+
+  node-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: "20" }
+      - run: cd sdk/node && npm install && npm test
+
+  docker-build:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Build image
+        run: docker build -t trailing-ci:${{ github.sha }} .
+
+      - name: Start container
+        run: |
+          docker run -d --name trailing-ci \
+            -p 3001:3001 \
+            trailing-ci:${{ github.sha }}
+
+      - name: Wait for health check
+        run: |
+          for attempt in $(seq 1 30); do
+            status="$(docker inspect -f '{{if .State.Health}}{{.State.Health.Status}}{{else}}none{{end}}' trailing-ci)"
+            if [ "$status" = "healthy" ]; then
+              exit 0
+            fi
+            if [ "$status" = "unhealthy" ]; then
+              docker logs trailing-ci
+              exit 1
+            fi
+            sleep 2
+          done
+          docker logs trailing-ci
+          exit 1
+
+      - name: Verify container responds
+        run: curl -fsS http://127.0.0.1:3001/v1/health
+
+      - name: Show container logs on failure
+        if: failure()
+        run: docker logs trailing-ci
+
+      - name: Stop container
+        if: always()
+        run: docker rm -f trailing-ci
+
+  integration:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Install Rust stable
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Build release binary
+        run: cargo build --release
+
+      - name: Run smoke tests
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          PORT=3001
+          DB_PATH="$RUNNER_TEMP/trailing-integration.db"
+          BINARY="./target/release/trailing"
+
+          cleanup() {
+            if [ -n "${SERVER_PID:-}" ] && kill -0 "$SERVER_PID" 2>/dev/null; then
+              kill "$SERVER_PID"
+              wait "$SERVER_PID" || true
+            fi
+          }
+          trap cleanup EXIT
+
+          "$BINARY" serve --port "$PORT" --db "$DB_PATH" >"$RUNNER_TEMP/trailing-server.log" 2>&1 &
+          SERVER_PID=$!
+
+          for attempt in $(seq 1 30); do
+            if curl -fsS "http://127.0.0.1:${PORT}/v1/health" >/dev/null; then
+              break
+            fi
+            sleep 1
+          done
+
+          health_json="$(curl -fsS "http://127.0.0.1:${PORT}/v1/health")"
+          echo "$health_json" | jq -e '.status == "ok"' >/dev/null
+
+          trace_json="$(curl -fsS -X POST "http://127.0.0.1:${PORT}/v1/traces" \
+            -H 'content-type: application/json' \
+            -d '{
+              "actions": [
+                {
+                  "session_id": "ci-session-1",
+                  "agent": "planner",
+                  "type": "tool_call",
+                  "timestamp": "2026-03-29T12:00:00Z",
+                  "payload": { "tool": "search" }
+                }
+              ]
+            }')"
+          action_id="$(echo "$trace_json" | jq -r '.action_ids[0]')"
+          test -n "$action_id"
+          test "$action_id" != "null"
+
+          actions_json="$(curl -fsS "http://127.0.0.1:${PORT}/v1/actions?session_id=ci-session-1&agent=planner")"
+          echo "$actions_json" | jq -e '.actions | length >= 1' >/dev/null
+
+          action_json="$(curl -fsS "http://127.0.0.1:${PORT}/v1/actions/${action_id}")"
+          echo "$action_json" | jq -e --arg action_id "$action_id" '.id == $action_id' >/dev/null
+
+          curl -fsS -X POST "http://127.0.0.1:${PORT}/v1/traces/otlp" \
+            -H 'content-type: application/json' \
+            -d '{
+              "resourceSpans": [
+                {
+                  "scopeSpans": [
+                    {
+                      "spans": [
+                        {
+                          "traceId": "trace-123",
+                          "spanId": "span-001",
+                          "name": "llm.call",
+                          "agent": "runtime",
+                          "timestamp": "2026-03-29T12:05:00Z"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }' >/dev/null
+
+          curl -fsS -X POST "http://127.0.0.1:${PORT}/v1/oversight" \
+            -H 'content-type: application/json' \
+            -d '{
+              "session_id": "trace-123",
+              "framework": "eu-ai-act",
+              "severity": "high",
+              "note": "human review completed",
+              "timestamp": "2026-03-29T12:06:00Z"
+            }' >/dev/null
+
+          oversight_json="$(curl -fsS "http://127.0.0.1:${PORT}/v1/actions?include_oversight=true")"
+          echo "$oversight_json" | jq -e '.actions | map(.kind) | index("oversight") != null' >/dev/null
+
+          compliance_json="$(curl -fsS "http://127.0.0.1:${PORT}/v1/compliance/eu-ai-act")"
+          echo "$compliance_json" | jq -e '.framework == "eu-ai-act"' >/dev/null
+
+          export_json="$(curl -fsS -X POST "http://127.0.0.1:${PORT}/v1/export/json" \
+            -H 'content-type: application/json' \
+            -d '{"framework":"eu-ai-act"}')"
+          echo "$export_json" | jq -e '.metadata.framework == "eu-ai-act"' >/dev/null
+
+          curl -fsS -X POST "http://127.0.0.1:${PORT}/v1/export/pdf" \
+            -H 'content-type: application/json' \
+            -d '{"framework":"eu-ai-act"}' \
+            -o "$RUNNER_TEMP/evidence.pdf"
+          test -s "$RUNNER_TEMP/evidence.pdf"
+          head -c 8 "$RUNNER_TEMP/evidence.pdf" | grep -q '%PDF-1.'
+
+          integrity_json="$(curl -fsS "http://127.0.0.1:${PORT}/v1/integrity")"
+          echo "$integrity_json" | jq -e '.valid == true and .checked_entries >= 3' >/dev/null
+
+          cli_integrity_json="$(TRAILING_DB_PATH="$DB_PATH" "$BINARY" verify)"
+          echo "$cli_integrity_json" | jq -e '.valid == true and .checked_entries >= 3' >/dev/null
+
+      - name: Show server log on failure
+        if: failure()
+        run: cat "$RUNNER_TEMP/trailing-server.log"

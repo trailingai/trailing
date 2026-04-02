@@ -1,0 +1,6 @@
+{
+  "rewrites": [
+    { "source": "/(.*)", "has": [{ "type": "host", "value": "docs.trailing.ai" }], "destination": "/docs.html" },
+    { "source": "/dashboard", "destination": "/dashboard.html" }
+  ]
+}

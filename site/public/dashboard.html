@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Trailing | Dashboard</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap');
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:'Manrope',sans-serif;background:#0a0a0a;color:#fafafa;min-height:100vh;display:flex;align-items:center;justify-content:center}
+    .card{max-width:520px;padding:48px 40px;text-align:center}
+    .icon{width:48px;height:48px;display:inline-flex;align-items:center;justify-content:center;border-radius:12px;background:rgba(177,200,255,.08);margin-bottom:24px}
+    .icon svg{width:24px;height:24px;color:#b1c8ff}
+    h1{font-size:24px;font-weight:700;margin-bottom:12px}
+    p{font-size:15px;color:#a1a1aa;line-height:1.6;margin-bottom:28px}
+    .install{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:14px 20px;font-family:'IBM Plex Mono',monospace;font-size:14px;color:#e4e4e7;margin-bottom:12px;cursor:pointer;display:inline-block;transition:border-color .15s}
+    .install:hover{border-color:rgba(177,200,255,.3)}
+    .install span{color:#71717a}
+    .steps{text-align:left;font-size:14px;color:#a1a1aa;line-height:2;font-family:'IBM Plex Mono',monospace;margin-bottom:28px}
+    .steps strong{color:#e4e4e7}
+    .links{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+    .btn{padding:10px 20px;border-radius:6px;font-size:14px;font-weight:600;text-decoration:none;transition:opacity .15s}
+    .btn:hover{opacity:.85}
+    .btn-primary{background:#b1c8ff;color:#0a0a0a}
+    .btn-ghost{border:1px solid rgba(255,255,255,.15);color:#fafafa}
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="4" y1="9" x2="20" y2="9"/><line x1="4" y1="15" x2="20" y2="15"/><line x1="10" y1="3" x2="8" y2="21"/><line x1="16" y1="3" x2="14" y2="21"/></svg></div>
+    <h1>Run Trailing to access the dashboard</h1>
+    <p>The dashboard connects to a live Trailing server. Start one locally in 3 commands:</p>
+    <div class="steps">
+      <strong>1.</strong> pip install trailing<br>
+      <strong>2.</strong> cargo install --path . <em style="color:#71717a"># or use Docker</em><br>
+      <strong>3.</strong> trailing serve --demo
+    </div>
+    <p style="font-size:13px">Then open <strong>localhost:3001/dashboard</strong></p>
+    <div class="links">
+      <a href="https://github.com/trailingai/trailing" class="btn btn-primary">Get started on GitHub</a>
+      <a href="/" class="btn btn-ghost">Back to home</a>
+    </div>
+  </div>
+</body>
+</html>
